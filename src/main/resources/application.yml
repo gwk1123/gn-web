@@ -1,0 +1,86 @@
+server:
+  port: 19095
+
+eureka:
+  client:
+    serviceUrl: #注册中心的注册地址
+      defaultZone: http://106.75.115.170:8090/eureka/
+
+spring:
+  application:
+    name: gnweb-client
+
+  datasource:
+    url: jdbc:mysql://106.75.115.170:3306/ry-vue?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=convertToNull
+    username: root
+    password: 123456
+    druid:
+      initial-size: 5
+      min-idle: 10
+      max-active: 80
+      web-stat-filter:
+        exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
+      stat-view-servlet:
+        login-username: druid
+        login-password: druid
+
+  redis:
+    database: 0
+    host: 106.75.115.170
+    port: 6379
+
+    pool:
+      # 最大可用连接数（默认为8，负数表示无限）
+      max-active: 300
+      # 最大空闲连接数（默认为8，负数表示无限）
+      max-idle: 100
+      # 最小空闲连接数（默认为0，该值只有为正数才有作用）
+      min-idle: 50
+      # 从连接池中获取连接最大等待时间（默认为-1，单位为毫秒，负数表示无限）
+      max-wait: 3000
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #开启sql日志
+
+xxl:
+  job:
+    admin:
+      addresses: http://106.75.115.170:8092/xxl-job-admin/
+    #      addresses: http://192.168.1.101:8092/xxl-job-admin/
+    accessToken:
+    executor:
+      appname: xxl-job-management
+      address:
+      ip:
+      port: 10001
+      logretentiondays: 30
+      logpath: /applogs/xxl-job/jobhandler
+
+jwt:
+  tokenHeader: Authorization
+  secret: abcdefghijklmnopqrstuvwxyz
+  expiration: 604800
+  tokenHead: Bearer
+secure:
+  ignored:
+    urls:
+      - /swagger-ui.html
+      - /swagger-resources/**
+      - /swagger/**
+      - /**/v2/api-docs
+      - /**/*.js
+      - /**/*.css
+      - /**/*.png
+      - /**/*.ico
+      - /webjars/springfox-swagger-ui/**
+      - /actuator/**
+      - /druid/**
+      - /login
+      - /register
+      - /logout
+      - /captchaImage
+      - /*.html
+      - /**/*.html
+      - /webjars/**
+      - /*/api-docs
