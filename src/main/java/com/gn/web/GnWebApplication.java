@@ -10,7 +10,7 @@ import org.springframework.context.annotation.ComponentScan;
 @EnableEurekaClient
 //@EnableFeignClients(basePackages = {"com.sibecommon.feign"})
 @SpringBootApplication
-@MapperScan({"com.gn.web.sys.mapper"})
+@MapperScan({"com.gn.web.sys.mapper","com.gn.web.direct.mapper"})
 //@ComponentScan({"com.gn.web", "com.sibecommon"})
 public class GnWebApplication {
 
