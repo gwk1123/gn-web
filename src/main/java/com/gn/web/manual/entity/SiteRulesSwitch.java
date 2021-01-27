@@ -1,4 +1,4 @@
-package com.gn.web.direct.entity;
+package com.gn.web.manual.entity;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

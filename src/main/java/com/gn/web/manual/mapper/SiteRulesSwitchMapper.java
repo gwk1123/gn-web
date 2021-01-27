@@ -1,7 +1,7 @@
-package com.gn.web.direct.mapper;
+package com.gn.web.manual.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.gn.web.direct.entity.SiteRulesSwitch;
+import com.gn.web.manual.entity.SiteRulesSwitch;
 import org.springframework.stereotype.Repository;
 
 /**

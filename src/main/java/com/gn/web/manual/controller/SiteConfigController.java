@@ -1,10 +1,9 @@
-package com.gn.web.direct.controller;
+package com.gn.web.manual.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gn.web.common.utils.CommonResult;
-import com.gn.web.direct.entity.SiteConfig;
-import com.gn.web.direct.service.SiteConfigService;
+import com.gn.web.manual.entity.SiteConfig;
+import com.gn.web.manual.service.SiteConfigService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -23,7 +22,7 @@ import java.util.List;
  */
 @Api(tags = {"政策站点配置"})
 @RestController
-@RequestMapping("/direct")
+@RequestMapping("/manual")
 public class SiteConfigController {
 
     private final SiteConfigService siteConfigService;

@@ -1,4 +1,4 @@
-package com.gn.web.direct.entity;
+package com.gn.web.manual.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * <p>

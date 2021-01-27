@@ -1,4 +1,4 @@
-package com.gn.web.direct.entity;
+package com.gn.web.manual.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;

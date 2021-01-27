@@ -1,9 +1,9 @@
-package com.gn.web.direct.service;
+package com.gn.web.manual.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.gn.web.direct.entity.SiteRulesSwitch;
+import com.gn.web.manual.entity.SiteRulesSwitch;
 
 import java.util.List;
 

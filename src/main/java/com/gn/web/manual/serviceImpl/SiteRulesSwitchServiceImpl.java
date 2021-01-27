@@ -1,15 +1,14 @@
-package com.gn.web.direct.serviceImpl;
+package com.gn.web.manual.serviceImpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gn.web.common.constant.DirectConstants;
-import com.gn.web.direct.entity.SiteRulesSwitch;
-import com.gn.web.direct.mapper.SiteRulesSwitchMapper;
-import com.gn.web.direct.service.SiteRulesSwitchService;
+import com.gn.web.manual.entity.SiteRulesSwitch;
+import com.gn.web.manual.mapper.SiteRulesSwitchMapper;
+import com.gn.web.manual.service.SiteRulesSwitchService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;

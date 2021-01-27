@@ -1,10 +1,10 @@
-package com.gn.web.direct.controller;
+package com.gn.web.manual.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gn.web.common.utils.CommonResult;
-import com.gn.web.direct.entity.SiteRulesSwitch;
-import com.gn.web.direct.service.SiteRulesSwitchService;
+import com.gn.web.manual.entity.SiteRulesSwitch;
+import com.gn.web.manual.service.SiteRulesSwitchService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -23,7 +23,7 @@ import java.util.List;
  */
 @Api(tags = {"站点规则开关"})
 @RestController
-@RequestMapping("/direct")
+@RequestMapping("/manual")
 public class SiteRulesSwitchController {
 
     private final SiteRulesSwitchService iteRulesSwitchService;
