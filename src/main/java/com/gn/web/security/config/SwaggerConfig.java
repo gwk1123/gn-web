@@ -22,7 +22,7 @@ public class SwaggerConfig {
     @Bean
     public Docket createRestApi() {
         return new Docket(DocumentationType.SWAGGER_2).apiInfo(apiInfo()).select()
-                .apis(RequestHandlerSelectors.basePackage("com.ry.manage"))
+                .apis(RequestHandlerSelectors.basePackage("com.gn.web"))
                 .paths(PathSelectors.any()).build();
     }
 
