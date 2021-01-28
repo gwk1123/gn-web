@@ -2,6 +2,7 @@ package com.gn.web.manual.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.gn.web.common.utils.CommonResult;
 import com.gn.web.manual.entity.PolicyInfo;
 import com.gn.web.manual.service.PolicyInfoService;
 import io.swagger.annotations.Api;
@@ -31,27 +32,27 @@ public class PolicyInfoController {
 
     @ApiOperation(value = "新增全平台政策管理")
     @PostMapping("/policy_info")
-    public boolean savePolicyInfo(@RequestBody PolicyInfo policyInfo){
-    return olicyInfoService.savePolicyInfo(policyInfo);
+    public CommonResult savePolicyInfo(@RequestBody PolicyInfo policyInfo){
+    return CommonResult.success(olicyInfoService.savePolicyInfo(policyInfo));
     }
 
     @ApiOperation(value = "删除全平台政策管理")
     @DeleteMapping("/policy_info/{id}")
-    public boolean removePolicyInfo(@PathVariable("id") String id){
-    return olicyInfoService.removePolicyInfo(id);
+    public CommonResult removePolicyInfo(@PathVariable("id") String id){
+    return CommonResult.success(olicyInfoService.removePolicyInfo(id));
     }
 
     @ApiOperation(value = "批量删除全平台政策管理")
     @DeleteMapping("/policy_infos")
-    public boolean removePolicyInfoByIds(@RequestBody List <String> ids){
-        return olicyInfoService.removePolicyInfoByIds(ids);
+    public CommonResult removePolicyInfoByIds(@RequestBody List <String> ids){
+        return CommonResult.success(olicyInfoService.removePolicyInfoByIds(ids));
         }
 
 
         @ApiOperation(value = "更新全平台政策管理")
         @PutMapping("/policy_info")
-        public boolean updatePolicyInfo(@RequestBody PolicyInfo policyInfo){
-        return olicyInfoService.updatePolicyInfo(policyInfo);
+        public CommonResult updatePolicyInfo(@RequestBody PolicyInfo policyInfo){
+        return CommonResult.success(olicyInfoService.updatePolicyInfo(policyInfo));
         }
 
         @ApiOperation(value = "查询全平台政策管理分页数据")
@@ -60,14 +61,14 @@ public class PolicyInfoController {
         @ApiImplicitParam(name = "policyInfo", value = "查询条件")
         })
         @GetMapping("/policy_info/page")
-        public IPage<PolicyInfo> pagePolicyInfo(Page<PolicyInfo> page, PolicyInfo policyInfo){
-        return olicyInfoService.pagePolicyInfo(page, policyInfo);
+        public CommonResult pagePolicyInfo(Page<PolicyInfo> page, PolicyInfo policyInfo){
+        return CommonResult.success(olicyInfoService.pagePolicyInfo(page, policyInfo));
         }
 
         @ApiOperation(value = "id查询全平台政策管理")
         @GetMapping("/policy_info/{id}")
-        public PolicyInfo getPolicyInfoById(@PathVariable String id){
-        return olicyInfoService.getPolicyInfoById(id);
+        public CommonResult getPolicyInfoById(@PathVariable String id){
+        return CommonResult.success(olicyInfoService.getPolicyInfoById(id));
         }
 
         }

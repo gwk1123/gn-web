@@ -1,18 +1,26 @@
 package com.gn.web.manual.entity;
 
+import java.math.BigDecimal;
+
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
+import java.util.List;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.Date;
-
 /**
  * <p>
- * 全平台政策管理
+ * OTA调价
  * </p>
  *
  * @author gwk
@@ -21,25 +29,19 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("policy_info")
-@ApiModel(value="PolicyInfo对象", description="全平台政策管理")
+@ApiModel(value="PolicyInfo对象", description="OTA调价")
 public class PolicyInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "OTA站点代码 多个/隔开")
+    @ApiModelProperty(value = "OTA站点代码")
     private String otaSiteCode;
 
-    @ApiModelProperty(value = "数据来源 WEBSITE,B2B,FD,NFD,ML-自用 多个用英文/分开")
+    @ApiModelProperty(value = "数据来源 WEBSITE,B2B,FD,NFD,ML-自用 多个用英文分开")
     private String sourceType;
 
-    @ApiModelProperty(value = "数据渠道代码 FUYAO-扶摇,NH-南航,FD,NFD,ML 多个用英文/分开")
+    @ApiModelProperty(value = "数据渠道代码 FUYAO-扶摇,NH-南航,FD,NFD,ML 多个用英文分开")
     private String channel;
-
-    @ApiModelProperty(value = "数据来源方式 0-全部 1-系统 2-人工")
-    private Boolean sourceWay;
-
-    @ApiModelProperty(value = "政策规则类型 0-全局 1-明细")
-    private Boolean ruleType;
 
     @ApiModelProperty(value = "航司")
     private String airline;
@@ -66,16 +68,16 @@ public class PolicyInfo implements Serializable {
     private String cabinExcept;
 
     @ApiModelProperty(value = "销售开始日期 格式：yyyy-MM-dd")
-    private Date saleStartDate;
+    private LocalDate saleStartDate;
 
     @ApiModelProperty(value = "销售结束日期 格式：yyyy-MM-dd")
-    private Date saleEndDate;
+    private LocalDate saleEndDate;
 
     @ApiModelProperty(value = "旅行开始日期 格式：yyyy-MM-dd")
-    private Date travelStartDate;
+    private LocalDate travelStartDate;
 
     @ApiModelProperty(value = "旅行结束日期 格式：yyyy-MM-dd")
-    private Date travelEndDate;
+    private LocalDate travelEndDate;
 
     @ApiModelProperty(value = "适用起飞时间段 格式 HHMM-HHMM 多个用英文的/分开")
     private String depTimeLimit;
@@ -119,38 +121,28 @@ public class PolicyInfo implements Serializable {
     @ApiModelProperty(value = "后返现金")
     private BigDecimal afterAmount;
 
-    @ApiModelProperty(value = "id")
-    private Long id;
-
     @ApiModelProperty(value = "版本控制")
     private Integer version;
 
     @ApiModelProperty(value = "备注说明")
     private String remark;
 
-    @ApiModelProperty(value = "状态：0-正常,1-暂停(挂起),99-无效(删除)")
-    private Integer status;
-
-    @ApiModelProperty(value = "创建时间")
-    private Date createTime;
-
-    @ApiModelProperty(value = "最后修改时间")
-    private Date updateTime;
-
-    @ApiModelProperty(value = "创建人ID")
-    private Long createUserId;
-
-    @ApiModelProperty(value = "创建人名称")
-    private String createUserName;
-
-    @ApiModelProperty(value = "修改人ID")
-    private Long updateUserId;
-
-    @ApiModelProperty(value = "修改人名称")
-    private String updateUserName;
-
     @ApiModelProperty(value = "出票备注")
     private String ticketRemark;
 
+    @ApiModelProperty(value = "竞价空间")
+    private String bidSpace;
+
+    /**
+     * 前端销售时间范围["2021-01-21", "2021-02-13"]
+     */
+    @TableField(exist = false)
+    private List<String> saleDates;
+
+    /**
+     * 前端旅行时间范围["2021-01-21", "2021-02-13"]
+     */
+    @TableField(exist = false)
+    private List<String> travelDates;
 
 }

@@ -1,14 +1,15 @@
 package com.gn.web.manual.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.List;
 
 /**
  * <p>
@@ -22,7 +23,7 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = false)
 @TableName("policy_global")
 @ApiModel(value="PolicyGlobal对象", description="全平台政策管理")
-public class PolicyGlobal implements Serializable {
+public class PolicyGlobal extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -36,10 +37,10 @@ public class PolicyGlobal implements Serializable {
     private String channel;
 
     @ApiModelProperty(value = "数据来源方式 0-全部 1-系统 2-人工")
-    private Boolean sourceWay;
+    private Integer sourceWay;
 
     @ApiModelProperty(value = "政策规则类型 0-全局 1-明细")
-    private Boolean ruleType;
+    private Integer ruleType;
 
     @ApiModelProperty(value = "航司")
     private String airline;
@@ -66,16 +67,16 @@ public class PolicyGlobal implements Serializable {
     private String cabinExcept;
 
     @ApiModelProperty(value = "销售开始日期 格式：yyyy-MM-dd")
-    private Date saleStartDate;
+    private LocalDate saleStartDate;
 
     @ApiModelProperty(value = "销售结束日期 格式：yyyy-MM-dd")
-    private Date saleEndDate;
+    private LocalDate saleEndDate;
 
     @ApiModelProperty(value = "旅行开始日期 格式：yyyy-MM-dd")
-    private Date travelStartDate;
+    private LocalDate travelStartDate;
 
     @ApiModelProperty(value = "旅行结束日期 格式：yyyy-MM-dd")
-    private Date travelEndDate;
+    private LocalDate travelEndDate;
 
     @ApiModelProperty(value = "适用起飞时间段 格式 HHMM-HHMM 多个用英文的/分开")
     private String depTimeLimit;
@@ -98,7 +99,7 @@ public class PolicyGlobal implements Serializable {
     @ApiModelProperty(value = "报价类型 0-非共享 1-共享 2-全部")
     private Integer rePriceType;
 
-    @ApiModelProperty(value = "行程类型 0-单程 1-往返 9-全部")
+    @ApiModelProperty(value = "行程类型 0-单程 1-往返 2-全部")
     private Integer tripType;
 
     @ApiModelProperty(value = "最低票面价")
@@ -119,38 +120,26 @@ public class PolicyGlobal implements Serializable {
     @ApiModelProperty(value = "后返现金")
     private BigDecimal afterAmount;
 
-    @ApiModelProperty(value = "id")
-    private Long id;
-
     @ApiModelProperty(value = "版本控制")
     private Integer version;
 
     @ApiModelProperty(value = "备注说明")
     private String remark;
 
-    @ApiModelProperty(value = "状态：0-正常,1-暂停(挂起),99-无效(删除)")
-    private Integer status;
-
-    @ApiModelProperty(value = "创建时间")
-    private Date createTime;
-
-    @ApiModelProperty(value = "最后修改时间")
-    private Date updateTime;
-
-    @ApiModelProperty(value = "创建人ID")
-    private Long createUserId;
-
-    @ApiModelProperty(value = "创建人名称")
-    private String createUserName;
-
-    @ApiModelProperty(value = "修改人ID")
-    private Long updateUserId;
-
-    @ApiModelProperty(value = "修改人名称")
-    private String updateUserName;
-
     @ApiModelProperty(value = "出票备注")
     private String ticketRemark;
 
+
+    /**
+     * 前端销售时间范围["2021-01-21", "2021-02-13"]
+     */
+    @TableField(exist = false)
+    private List<String> saleDates;
+
+    /**
+     * 前端旅行时间范围["2021-01-21", "2021-02-13"]
+     */
+    @TableField(exist = false)
+    private List<String> travelDates;
 
 }
