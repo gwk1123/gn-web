@@ -46,7 +46,7 @@ mybatis-plus:
 xxl:
   job:
     admin:
-      addresses: http://106.75.115.170:8091/xxl-job-admin/
+      addresses: http://106.75.115.170:8092/xxl-job-admin/
     #      addresses: http://192.168.1.101:8091/xxl-job-admin/
     accessToken:
     executor:
