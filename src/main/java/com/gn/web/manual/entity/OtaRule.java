@@ -21,7 +21,7 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = false)
 @TableName("ota_rule")
 @ApiModel(value="OtaRule对象", description="OTA航线规则")
-public class OtaRule implements Serializable {
+public class OtaRule extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
