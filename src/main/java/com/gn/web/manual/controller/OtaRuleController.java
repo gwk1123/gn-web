@@ -23,7 +23,7 @@ import java.util.List;
  */
 @Api(tags = {"OTA航线规则"})
 @RestController
-@RequestMapping("/ota-rule")
+@RequestMapping("/manual")
 public class OtaRuleController {
 
     private final OtaRuleService taRuleService;
@@ -31,26 +31,26 @@ public class OtaRuleController {
     public OtaRuleController(OtaRuleService taRuleService){this.taRuleService = taRuleService;}
 
     @ApiOperation(value = "新增OTA航线规则")
-    @PostMapping("/otaRule")
+    @PostMapping("/ota_rule")
     public CommonResult saveOtaRule(@RequestBody OtaRule otaRule){
     return CommonResult.success(taRuleService.saveOtaRule(otaRule));
     }
 
     @ApiOperation(value = "删除OTA航线规则")
-    @DeleteMapping("/otaRule/{id}")
+    @DeleteMapping("/ota_rule/{id}")
     public CommonResult removeOtaRule(@PathVariable("id") String id){
     return CommonResult.success(taRuleService.removeOtaRule(id));
     }
 
     @ApiOperation(value = "批量删除OTA航线规则")
-    @DeleteMapping("/otaRules")
+    @DeleteMapping("/ota_rules")
     public CommonResult removeOtaRuleByIds(@RequestBody List <String> ids){
         return CommonResult.success(taRuleService.removeOtaRuleByIds(ids));
         }
 
 
         @ApiOperation(value = "更新OTA航线规则")
-        @PutMapping("/otaRule")
+        @PutMapping("/ota_rule")
         public CommonResult updateOtaRule(@RequestBody OtaRule otaRule){
         return CommonResult.success(taRuleService.updateOtaRule(otaRule));
         }
@@ -60,13 +60,13 @@ public class OtaRuleController {
         @ApiImplicitParam(name = "page", value = "分页参数"),
         @ApiImplicitParam(name = "otaRule", value = "查询条件")
         })
-        @GetMapping("/otaRule/page")
+        @GetMapping("/ota_rule/page")
         public CommonResult pageOtaRule(Page<OtaRule> page, OtaRule otaRule){
         return CommonResult.success(taRuleService.pageOtaRule(page, otaRule));
         }
 
         @ApiOperation(value = "id查询OTA航线规则")
-        @GetMapping("/otaRule/{id}")
+        @GetMapping("/ota_rule/{id}")
         public CommonResult getOtaRuleById(@PathVariable String id){
         return CommonResult.success(taRuleService.getOtaRuleById(id));
         }
