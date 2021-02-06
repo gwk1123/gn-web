@@ -65,4 +65,11 @@ public interface OtaSyncPolicyService extends IService<OtaSyncPolicy> {
      * @return OtaSyncPolicy
      */
     OtaSyncPolicy getOtaSyncPolicyById(String id);
+
+    /**
+     * 根据条件查询
+     * @param otaSyncPolicy
+     * @return
+     */
+    List<OtaSyncPolicy> selectOtaSyncPolicys(OtaSyncPolicy otaSyncPolicy);
 }

@@ -4,9 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.gn.web.source.entity.SourcedataDataSegment;
-import com.gn.web.source.mapper.SourcedataDataSegmentMapper;
-import com.gn.web.source.service.SourcedataDataSegmentService;
+import com.gn.web.source.entity.SourceDataSegment;
+import com.gn.web.source.mapper.SourceDataSegmentMapper;
+import com.gn.web.source.service.SourceDataSegmentService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -25,47 +25,47 @@ import java.util.Optional;
  * @since 2021-02-03
  */
 @Service
-public class SourcedataDataSegmentServiceImpl extends ServiceImpl<SourcedataDataSegmentMapper, SourcedataDataSegment> implements SourcedataDataSegmentService {
+public class SourceDataSegmentServiceImpl extends ServiceImpl<SourceDataSegmentMapper, SourceDataSegment> implements SourceDataSegmentService {
 
     @Override
-    public IPage<SourcedataDataSegment> pageSourcedataDataSegment(Page<SourcedataDataSegment> page, SourcedataDataSegment sourcedataDataSegment){
+    public IPage<SourceDataSegment> pageSourceDataSegment(Page<SourceDataSegment> page, SourceDataSegment SourceDataSegment){
 
         page = Optional.ofNullable(page).orElse(new Page<>());
-        QueryWrapper<SourcedataDataSegment> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<SourceDataSegment> queryWrapper = new QueryWrapper<>();
 
         return  this.page(page, queryWrapper);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean saveSourcedataDataSegment(SourcedataDataSegment sourcedataDataSegment){
-        Assert.notNull(sourcedataDataSegment, "政策数据源行程信息为空");
-        return this.save(sourcedataDataSegment);
+    public boolean saveSourceDataSegment(SourceDataSegment SourceDataSegment){
+        Assert.notNull(SourceDataSegment, "政策数据源行程信息为空");
+        return this.save(SourceDataSegment);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean removeSourcedataDataSegment(String id){
+    public boolean removeSourceDataSegment(String id){
         Assert.hasText(id, "主键为空");
         return this.removeById(id);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean removeSourcedataDataSegmentByIds(List<String> ids){
+    public boolean removeSourceDataSegmentByIds(List<String> ids){
         Assert.isTrue(!CollectionUtils.isEmpty(ids), "主键集合为空");
         return this.removeByIds(ids);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean updateSourcedataDataSegment(SourcedataDataSegment sourcedataDataSegment){
-        Assert.notNull(sourcedataDataSegment, "政策数据源行程信息为空");
-        return this.updateById(sourcedataDataSegment);
+    public boolean updateSourceDataSegment(SourceDataSegment SourceDataSegment){
+        Assert.notNull(SourceDataSegment, "政策数据源行程信息为空");
+        return this.updateById(SourceDataSegment);
     }
 
     @Override
-    public SourcedataDataSegment getSourcedataDataSegmentById(String id){
+    public SourceDataSegment getSourceDataSegmentById(String id){
         return  this.getById(id);
     }
 }

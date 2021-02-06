@@ -7,10 +7,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gn.web.manual.entity.OtaSyncPolicy;
 import com.gn.web.manual.mapper.OtaSyncPolicyMapper;
 import com.gn.web.manual.service.OtaSyncPolicyService;
+import com.gn.web.sys.entity.SysUser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -68,4 +70,35 @@ public class OtaSyncPolicyServiceImpl extends ServiceImpl<OtaSyncPolicyMapper, O
     public OtaSyncPolicy getOtaSyncPolicyById(String id){
         return  this.getById(id);
     }
+
+    public List<OtaSyncPolicy> selectOtaSyncPolicys(OtaSyncPolicy otaSyncPolicy){
+        QueryWrapper<OtaSyncPolicy> queryWrapper= buildQueryWrapper(otaSyncPolicy);
+        return this.list(queryWrapper);
+    }
+
+     public void updateOtaPolicy(List<String> uniqueKeys){
+
+     }
+
+
+    /**
+     * 构建查询条件
+     * @param otaSyncPolicy
+     * @return
+     */
+    public QueryWrapper<OtaSyncPolicy> buildQueryWrapper(OtaSyncPolicy otaSyncPolicy){
+        QueryWrapper<OtaSyncPolicy> queryWrapper=new QueryWrapper<>();
+        if(otaSyncPolicy != null){
+            if(otaSyncPolicy.getTravelStartDate() != null){
+                queryWrapper.lambda().eq(!StringUtils.isEmpty(otaSyncPolicy.getTravelStartDate()),OtaSyncPolicy::getTravelStartDate,otaSyncPolicy.getTravelStartDate())
+                        .eq(!StringUtils.isEmpty(otaSyncPolicy.getDepCity()),OtaSyncPolicy::getDepCity,otaSyncPolicy.getDepCity())
+                        .eq(!StringUtils.isEmpty(otaSyncPolicy.getArrCity()),OtaSyncPolicy::getArrCity,otaSyncPolicy.getArrCity());
+            }
+        }
+        return queryWrapper;
+    }
+
+
+
+
 }

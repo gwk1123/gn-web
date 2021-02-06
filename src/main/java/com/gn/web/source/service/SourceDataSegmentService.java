@@ -3,7 +3,7 @@ package com.gn.web.source.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.gn.web.source.entity.SourcedataDataSegment;
+import com.gn.web.source.entity.SourceDataSegment;
 
 import java.util.List;
 
@@ -15,24 +15,24 @@ import java.util.List;
  * @author gwk
  * @since 2021-02-03
  */
-public interface SourcedataDataSegmentService extends IService<SourcedataDataSegment> {
+public interface SourceDataSegmentService extends IService<SourceDataSegment> {
 
     /**
      * 查询政策数据源行程信息分页数据
      *
      * @param page      分页参数
-     * @param sourcedataDataSegment 查询条件
-     * @return IPage<SourcedataDataSegment>
+     * @param SourceDataSegment 查询条件
+     * @return IPage<SourceDataSegment>
      */
-     IPage<SourcedataDataSegment> pageSourcedataDataSegment(Page<SourcedataDataSegment> page, SourcedataDataSegment sourcedataDataSegment);
+     IPage<SourceDataSegment> pageSourceDataSegment(Page<SourceDataSegment> page, SourceDataSegment SourceDataSegment);
 
     /**
      * 新增政策数据源行程信息
      *
-     * @param sourcedataDataSegment 政策数据源行程信息
+     * @param SourceDataSegment 政策数据源行程信息
      * @return boolean
      */
-    boolean saveSourcedataDataSegment(SourcedataDataSegment sourcedataDataSegment);
+    boolean saveSourceDataSegment(SourceDataSegment SourceDataSegment);
 
     /**
      * 删除政策数据源行程信息
@@ -40,7 +40,7 @@ public interface SourcedataDataSegmentService extends IService<SourcedataDataSeg
      * @param id 主键
      * @return boolean
      */
-    boolean removeSourcedataDataSegment(String id);
+    boolean removeSourceDataSegment(String id);
 
     /**
      * 批量删除政策数据源行程信息
@@ -48,21 +48,21 @@ public interface SourcedataDataSegmentService extends IService<SourcedataDataSeg
      * @param ids 主键集合
      * @return boolean
      */
-    boolean removeSourcedataDataSegmentByIds(List<String> ids);
+    boolean removeSourceDataSegmentByIds(List<String> ids);
 
     /**
      * 修改政策数据源行程信息
      *
-     * @param sourcedataDataSegment 政策数据源行程信息
+     * @param SourceDataSegment 政策数据源行程信息
      * @return boolean
      */
-    boolean updateSourcedataDataSegment(SourcedataDataSegment sourcedataDataSegment);
+    boolean updateSourceDataSegment(SourceDataSegment SourceDataSegment);
 
     /**
      * id查询数据
      *
      * @param id id
-     * @return SourcedataDataSegment
+     * @return SourceDataSegment
      */
-    SourcedataDataSegment getSourcedataDataSegmentById(String id);
+    SourceDataSegment getSourceDataSegmentById(String id);
 }

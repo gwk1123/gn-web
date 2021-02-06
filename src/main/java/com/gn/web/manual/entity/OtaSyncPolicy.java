@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>
@@ -50,10 +51,10 @@ public class OtaSyncPolicy extends BaseEntity implements Serializable {
     private Long sourceId;
 
     @ApiModelProperty(value = "销售开始日期 格式：yyyy-MM-dd")
-    private Date saleStartDate;
+    private LocalDate saleStartDate;
 
     @ApiModelProperty(value = "销售结束日期 格式：yyyy-MM-dd")
-    private Date saleEndDate;
+    private LocalDate saleEndDate;
 
     @ApiModelProperty(value = "适用起飞时间段 格式 HHMM-HHMM 多个用英文的/分开")
     private String depTimeLimit;
@@ -107,13 +108,13 @@ public class OtaSyncPolicy extends BaseEntity implements Serializable {
     private BigDecimal fdDiscount;
 
     @ApiModelProperty(value = "全平台全局规则ID")
-    private Long commonPolicyQid;
+    private Long commonPolicyId;
 
     @ApiModelProperty(value = "全平台明细规则ID")
-    private Long commonPolicyXid;
+    private Long  policyGlobalId;
 
     @ApiModelProperty(value = "调价ID")
-    private Long policyPriceId;
+    private Long policyInfoId;
 
     @ApiModelProperty(value = "规则前返点 单位%")
     private BigDecimal ruleBeforeCommission;
@@ -202,7 +203,7 @@ public class OtaSyncPolicy extends BaseEntity implements Serializable {
     private LocalDate travelEndDate;
 
     @ApiModelProperty(value = "行程类型 0-全部 1-单程 2-往返 3-联程")
-    private Integer tripType;
+    private String tripType;
 
     @ApiModelProperty(value = "销售航司 CA")
     private String airline;
@@ -215,9 +216,6 @@ public class OtaSyncPolicy extends BaseEntity implements Serializable {
 
     private String uniqueKey;
 
-    @ApiModelProperty(value = "数据开关ID")
-    private Long sourceSwtichId;
-
     @ApiModelProperty(value = "全平台调价ID")
     private String commonPriceIds;
 
@@ -227,5 +225,6 @@ public class OtaSyncPolicy extends BaseEntity implements Serializable {
     @ApiModelProperty(value = "竞价空间")
     private String bidSpace;
 
+    private List<OtaSyncPolicySegment> sourceDataSegments;
 
 }

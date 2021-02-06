@@ -1,5 +1,6 @@
 package com.gn.web.source.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -20,9 +21,9 @@ import java.util.Date;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("sourcedata_data_segment")
-@ApiModel(value="SourcedataDataSegment对象", description="政策数据源行程信息")
-public class SourcedataDataSegment implements Serializable {
+@TableName("source_data_segment")
+@ApiModel(value="SourceDataSegment对象", description="政策数据源行程信息")
+public class SourceDataSegment implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -131,5 +132,8 @@ public class SourcedataDataSegment implements Serializable {
     @ApiModelProperty(value = "座位数")
     private Integer seatNum;
 
+    @ApiModelProperty(value = "暂时存放替换舱位")
+    @TableField(exist = false)
+    private String realCabin;
 
 }

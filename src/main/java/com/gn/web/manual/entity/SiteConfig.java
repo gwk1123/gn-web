@@ -51,5 +51,7 @@ public class SiteConfig extends BaseEntity implements Serializable {
     @ApiModelProperty(value = "优先排序序号")
     private Integer sortSeq;
 
+    @ApiModelProperty(value = "产品类型")
+    private Integer productType;
 
 }

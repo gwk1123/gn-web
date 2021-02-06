@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>
@@ -21,9 +22,9 @@ import java.util.Date;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("sourcedata_data")
-@ApiModel(value="SourcedataData对象", description="政策数据源")
-public class SourcedataData implements Serializable {
+@TableName("source_data")
+@ApiModel(value="SourceData对象", description="政策数据源")
+public class SourceData implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -70,10 +71,10 @@ public class SourcedataData implements Serializable {
     private String voidTime;
 
     @ApiModelProperty(value = "是否共享政策 0:非共享 1:共享")
-    private Boolean shareFlag;
+    private String shareFlag;
 
     @ApiModelProperty(value = "废票标识 0-可废票 1-不可废票")
-    private Boolean voidTicketFlag;
+    private String voidTicketFlag;
 
     @ApiModelProperty(value = "是否需要换编码 0-不换编码 1-换编码")
     private Integer changePnrFlag;
@@ -170,5 +171,5 @@ public class SourcedataData implements Serializable {
     @ApiModelProperty(value = "方案唯一key，航司-出发地-目的地-舱位1-舱位2")
     private String uniqueKey;
 
-
+    private List<SourceDataSegment> sourceDataSegments;
 }

@@ -30,7 +30,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 @TableName("policy_info")
 @ApiModel(value="PolicyInfo对象", description="OTA调价")
-public class PolicyInfo implements Serializable {
+public class PolicyInfo extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
