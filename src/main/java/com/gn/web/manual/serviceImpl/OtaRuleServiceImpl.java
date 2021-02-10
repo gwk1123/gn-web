@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gn.web.common.constant.DirectConstants;
 import com.gn.web.common.redis.RedisCache;
 import com.gn.web.manual.entity.OtaRule;
+import com.gn.web.manual.entity.SiteConfig;
 import com.gn.web.manual.mapper.OtaRuleMapper;
 import com.gn.web.manual.service.OtaRuleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,6 +85,14 @@ public class OtaRuleServiceImpl extends ServiceImpl<OtaRuleMapper, OtaRule> impl
     @Override
     public OtaRule getOtaRuleById(String id){
         return  this.getById(id);
+    }
+
+    public boolean changeStatus(OtaRule otaRule){
+        OtaRule status =this.getById(otaRule.getId());
+        status.setStatus(otaRule.getStatus());
+        boolean flay= this.updateById(status);
+        saveOrUpdateCache( status);
+        return flay;
     }
 
     public void saveOrUpdateCache(OtaRule otaRule){

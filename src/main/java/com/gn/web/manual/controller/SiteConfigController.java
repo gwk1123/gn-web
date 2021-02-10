@@ -2,6 +2,7 @@ package com.gn.web.manual.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gn.web.common.utils.CommonResult;
+import com.gn.web.manual.entity.OtaRule;
 import com.gn.web.manual.entity.SiteConfig;
 import com.gn.web.manual.service.SiteConfigService;
 import io.swagger.annotations.Api;
@@ -69,5 +70,12 @@ public class SiteConfigController {
         public CommonResult getSiteConfigById(@PathVariable String id){
         return CommonResult.success(siteConfigService.getSiteConfigById(id));
         }
+
+    @ApiOperation(value = "更新站点状态")
+    @PutMapping("/site_config/change_status")
+    public CommonResult changeStatus(@RequestBody SiteConfig siteConfig) {
+        return CommonResult.success(siteConfigService.changeStatus(siteConfig));
+    }
+
 
         }

@@ -65,4 +65,6 @@ public interface OtaRuleService extends IService<OtaRule> {
      * @return OtaRule
      */
     OtaRule getOtaRuleById(String id);
+
+    boolean changeStatus(OtaRule otaRule);
 }

@@ -83,6 +83,14 @@ public class SiteConfigServiceImpl extends ServiceImpl<SiteConfigMapper, SiteCon
         return  this.getById(id);
     }
 
+    public boolean changeStatus(SiteConfig siteConfig){
+        SiteConfig status =this.getById(siteConfig.getId());
+        status.setStatus(siteConfig.getStatus());
+        boolean flay= this.updateById(status);
+        saveOrUpdateCache( status);
+        return flay;
+    }
+
     public void saveOrUpdateCache(SiteConfig siteConfig){
         if(DirectConstants.NORMAL.equals(siteConfig.getStatus())){
             redisCache.addHashMap(DirectConstants.SITE_CONFIG,siteConfig.getOtaSiteCode(),siteConfig);

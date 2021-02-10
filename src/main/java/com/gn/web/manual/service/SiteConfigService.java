@@ -65,4 +65,6 @@ public interface SiteConfigService extends IService<SiteConfig> {
      * @return SiteConfig
      */
     SiteConfig getSiteConfigById(String id);
+
+    boolean changeStatus(SiteConfig siteConfig);
 }

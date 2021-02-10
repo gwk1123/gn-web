@@ -38,5 +38,7 @@ public class ResignConfig extends BaseEntity implements Serializable {
     @ApiModelProperty(value = "目的地")
     private String arrCity;
 
+    @ApiModelProperty(value = "站点")
+    private String otaSiteCode;
 
 }
