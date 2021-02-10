@@ -12,6 +12,8 @@ import com.gn.web.manual.mapper.OtaRuleMapper;
 import com.gn.web.manual.mapper.PolicyGlobalMapper;
 import com.gn.web.manual.mapper.PolicyInfoMapper;
 import com.gn.web.manual.mapper.SiteConfigMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -36,6 +38,7 @@ public class InitCacheRunner implements CommandLineRunner {
     @Autowired
     private RedisCache redisCache;
 
+    private Logger logger =LoggerFactory.getLogger(InitCacheRunner.class);
 
     @Override
     public void run(String... args) throws Exception {
@@ -43,10 +46,12 @@ public class InitCacheRunner implements CommandLineRunner {
     }
 
     public void initData(){
+        logger.info("初始化缓存。。。");
         initSiteConfig();
         initOtaRule();
         initPolicyGlobal();
         initPolicyInfo();
+        logger.info("缓存完成。。。");
     }
 
 

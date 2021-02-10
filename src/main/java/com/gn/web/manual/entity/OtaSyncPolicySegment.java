@@ -66,7 +66,7 @@ public class OtaSyncPolicySegment extends BaseEntity implements Serializable {
     private String arrTime;
 
     @ApiModelProperty(value = "是否共享航班  0:非共享 1:共享")
-    private String codeShare;
+    private Boolean codeShare;
 
     @ApiModelProperty(value = "共享航班号限制 0-不限制 1-适用 2-排除")
     private Integer flightNumShareLimit;

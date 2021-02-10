@@ -12,7 +12,7 @@ import com.gn.web.common.utils.GzipUtil;
 import com.gn.web.manual.entity.*;
 import com.gn.web.manual.mapper.OtaSyncPolicyMapper;
 import com.gn.web.manual.mapper.OtaSyncPolicySegmentMapper;
-import com.gn.web.manual.mapper.SiteConfigMapper;
+import com.gn.web.manual.service.OtaSyncPolicySegmentService;
 import com.gn.web.manual.service.OtaSyncPolicyService;
 import com.gn.web.source.entity.*;
 import com.gn.web.source.service.WebSearchService;
@@ -27,11 +27,9 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -49,6 +47,12 @@ public class WebSearchServiceImpl implements WebSearchService {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private OtaSyncPolicyService otaSyncPolicyService;
+
+    @Autowired
+    private OtaSyncPolicySegmentService otaSyncPolicySegmentService;
 
     @Qualifier("asyncExecutor1")
     @Autowired
@@ -87,17 +91,11 @@ public class WebSearchServiceImpl implements WebSearchService {
     @Autowired
     private ThreadPoolTaskExecutor asyncExecutor9;
 
-
-
-    private OtaSyncPolicyService otaSyncPolicyService;
-
-    private OtaSyncPolicySegmentMapper otaSyncPolicySegmentMapper;
-
 //    private SiteConfigMapper siteConfigMapper;
 
-    private final static String FORMAT_PATTERN3="yyyy-MM-dd";
+    private final static String FORMAT_PATTERN3 = "yyyy-MM-dd";
 
-    private final static String FORMAT_PATTERN4="yyyyMMdd";
+    private final static String FORMAT_PATTERN4 = "yyyyMMdd";
 
     private static Logger logger = LoggerFactory.getLogger(WebSearchServiceImpl.class);
 
@@ -139,20 +137,20 @@ public class WebSearchServiceImpl implements WebSearchService {
             updateOtaPolicy.setTravelStartDate(parseDate(otaRequest.getFromDate()));
             updateOtaPolicy.setDepCity(otaRequest.getFromAirport());
             updateOtaPolicy.setArrCity(otaRequest.getToAirport());
-            List<OtaSyncPolicy> otaSyncPolicies= otaSyncPolicyService.selectOtaSyncPolicys(updateOtaPolicy);
+            List<OtaSyncPolicy> otaSyncPolicies = otaSyncPolicyService.selectOtaSyncPolicys(updateOtaPolicy);
             if (!CollectionUtils.isEmpty(otaSyncPolicies)) {
-            List<String> uniqueKeys = otaSyncPolicies.stream().map(OtaSyncPolicy::getUniqueKey).collect(Collectors.toList());
-                QueryWrapper<OtaSyncPolicy> queryWrapper= new QueryWrapper<>();
-                queryWrapper.lambda().in(OtaSyncPolicy::getUniqueKey,uniqueKeys);
+                List<String> uniqueKeys = otaSyncPolicies.stream().map(OtaSyncPolicy::getUniqueKey).collect(Collectors.toList());
+                QueryWrapper<OtaSyncPolicy> queryWrapper = new QueryWrapper<>();
+                queryWrapper.lambda().in(OtaSyncPolicy::getUniqueKey, uniqueKeys);
                 OtaSyncPolicy u = new OtaSyncPolicy();
                 u.setUpdateTime(LocalDateTime.now());
                 u.setOtaDeleteStatus(1);
-                otaSyncPolicyService.update(u,queryWrapper);
+                otaSyncPolicyService.update(u, queryWrapper);
             }
 
             //获取数据源开关配置
             long t1 = SystemClock.now();
-            logger.info("请求时间 t1:{}",t1);
+            logger.info("请求时间 t1:{}", t1);
             SiteSearchRequest siteSearchRequest = setDataInformation(otaRequest);
             if (siteSearchRequest.getSiteConfig() == null) {
                 logger.info("站点:{},开关已关闭", otaRequest.getOtaSiteCode());
@@ -176,13 +174,13 @@ public class WebSearchServiceImpl implements WebSearchService {
             }
 
             Long t2 = SystemClock.now();
-            logger.info("{}请求时间t12:{}",t1, t2 - t1);
+            logger.info("{}请求时间t12:{}", t1, t2 - t1);
             List<String> dataMapStr = dataMap.values().parallelStream().map(m -> {
                 return GzipUtil.unCompress((byte[]) m);
             }).collect(Collectors.toList());
 
             Long t3 = SystemClock.now();
-            logger.info("{}请求时间t23:{}",t1, t3 - t2);
+            logger.info("{}请求时间t23:{}", t1, t3 - t2);
             List<SourceData> siteRoutings = new ArrayList<>();
             List<SourceData> finalSiteRoutings = siteRoutings;
             dataMapStr.parallelStream().forEach(e -> {
@@ -196,7 +194,7 @@ public class WebSearchServiceImpl implements WebSearchService {
             });
 
             Long t4 = SystemClock.now();
-            logger.info("{}请求时间t34:{}",t1, t4 - t3);
+            logger.info("{}请求时间t34:{}", t1, t4 - t3);
             //对数据进行规则过滤
             siteRoutings = siteRoutings.parallelStream().filter(routing -> {
                 return otaRuleFilter(siteSearchRequest, routing);
@@ -204,48 +202,48 @@ public class WebSearchServiceImpl implements WebSearchService {
 
             //将替换舱位规则转成map
             Map<String, List<OtaRule>> realCabinMap = null;
-            if(!CollectionUtils.isEmpty(siteSearchRequest.getOtaRealCabins())) {
+            if (!CollectionUtils.isEmpty(siteSearchRequest.getOtaRealCabins())) {
                 realCabinMap = siteSearchRequest.getOtaRealCabins().stream().filter(Objects::nonNull).collect(Collectors.groupingBy(OtaRule::getAirline));
             }
 
             Long t5 = SystemClock.now();
-            logger.info("{}请求时间t45:{},otaPolicyList ={},",t1, t5 - t4,siteRoutings.size());
+            logger.info("{}请求时间t45:{},otaPolicyList ={},", t1, t5 - t4, siteRoutings.size());
 
             //批量获取全平台调价
-            Map<String,List<CommonPrice>> commonPriceMap= getCommonPriceMap(siteRoutings);
+            Map<String, List<CommonPrice>> commonPriceMap = getCommonPriceMap(siteRoutings);
             Long tt = SystemClock.now();
-            logger.info("{}批量获取全平台政策前返耗时:{}",t1,tt-t5);
+            logger.info("{}批量获取全平台政策前返耗时:{}", t1, tt - t5);
 
             //批量获取全平台政策前返
 //            List<Object> qo=getCommonPolicies("QF-ALL", "MLCommonPolicy",siteRoutings);
             Long tq = SystemClock.now();
-            logger.info("{}批量获取全平台政策前返耗时:{}",t1,tq-tt);
+            logger.info("{}批量获取全平台政策前返耗时:{}", t1, tq - tt);
 //            Map<String, List<PolicyGlobal>> beforeCommonPolicieMap = null;
 //            if(!CollectionUtils.isEmpty(qo)) {
 //                beforeCommonPolicieMap = qo.stream().filter(Objects::nonNull).map(m -> objectMapper.convertValue(m, MlCommonPolicy.class)).collect(Collectors.groupingBy(MlCommonPolicy::getAirline));
 //            }
             Long tqz = SystemClock.now();
-            logger.info("{}转化全平台政策前返耗时:{}",t1,tqz-tq);
+            logger.info("{}转化全平台政策前返耗时:{}", t1, tqz - tq);
             //批量获取全平台政策后返
             List<Object> ho = getCommonPolicies("HF-ALL", "MLCommonPolicy", siteRoutings);
             Long th = SystemClock.now();
-            logger.info("{}批量获取全平台政策后返耗时:{}",t1,th-tqz);
+            logger.info("{}批量获取全平台政策后返耗时:{}", t1, th - tqz);
             Map<String, List<PolicyGlobal>> afterCommonPolicieMap = null;
-            if(!CollectionUtils.isEmpty(ho)) {
+            if (!CollectionUtils.isEmpty(ho)) {
                 afterCommonPolicieMap = ho.stream().filter(Objects::nonNull).map(m -> objectMapper.convertValue(m, PolicyGlobal.class)).collect(Collectors.groupingBy(PolicyGlobal::getAirline));
             }
             Long thz = SystemClock.now();
-            logger.info("{}转化全平台政策后返耗时:{}",t1,thz-th);
+            logger.info("{}转化全平台政策后返耗时:{}", t1, thz - th);
             //批量获取调价管理政策
             List<Object> otaObjects = getCommonPolicies(otaRequest.getOtaSiteCode(), "MlOtaPolicyPrice", siteRoutings);
             Long to = SystemClock.now();
-            logger.info("{}批量获取调价管理政策耗时:{}",t1,to-thz);
+            logger.info("{}批量获取调价管理政策耗时:{}", t1, to - thz);
             Map<String, List<PolicyInfo>> otaPolicyPriceMap = null;
-            if(!CollectionUtils.isEmpty(otaObjects)) {
+            if (!CollectionUtils.isEmpty(otaObjects)) {
                 otaPolicyPriceMap = otaObjects.stream().filter(Objects::nonNull).map(m -> objectMapper.convertValue(m, PolicyInfo.class)).collect(Collectors.groupingBy(PolicyInfo::getAirline));
             }
             Long toz = SystemClock.now();
-            logger.info("{}转化调价管理政策耗时:{}",t1,toz-to);
+            logger.info("{}转化调价管理政策耗时:{}", t1, toz - to);
 
             Map<String, List<PolicyGlobal>> finalAfterCommonPolicieMap = afterCommonPolicieMap;
 //            Map<String, List<MlCommonPolicy>> finalBeforeCommonPolicieMap = beforeCommonPolicieMap;
@@ -260,7 +258,7 @@ public class WebSearchServiceImpl implements WebSearchService {
                     //获取ota发布价格选择
                     OtaRule otaPublishPrice = getOtaPublishPrice(siteSearchRequest, routing);
                     Long t51 = SystemClock.now();
-                    logger.info("{}请求时间t50-51:{}",t1, t51 - t50);
+                    logger.info("{}请求时间t50-51:{}", t1, t51 - t50);
                     if (otaPublishPrice == null || otaPolicyType == null) {
                         logger.info("站点:{},政策类型或ota发布价格选择为空", otaRequest.getOtaSiteCode());
                         return null;
@@ -270,33 +268,33 @@ public class WebSearchServiceImpl implements WebSearchService {
                     //获取全平台政策
 //                    List<MlCommonPrice> commonPrices = findCommonPrice(siteSearchRequest, routing, otaRequest);
                     List<CommonPrice> commonPrices = null;
-                    if (commonPriceMap != null && commonPriceMap.size() !=0) {
+                    if (commonPriceMap != null && commonPriceMap.size() != 0) {
                         commonPrices = getCommonPrice(commonPriceMap.get(routing.getSourceType()), routing, otaRequest);
                     }
 
                     //全平台政策后返
                     List<PolicyGlobal> afterCommonPolicies = null;
-                    if (finalAfterCommonPolicieMap != null && finalAfterCommonPolicieMap.size() !=0) {
+                    if (finalAfterCommonPolicieMap != null && finalAfterCommonPolicieMap.size() != 0) {
                         afterCommonPolicies = finalAfterCommonPolicieMap.get(routing.getAirline());
                     }
                     PolicyGlobal policyGlobal = getCommonPolicie(afterCommonPolicies, routing,
                             otaRequest, siteSearchRequest);
                     Long t54 = SystemClock.now();
-                    logger.info("{}请求时间t53-54:{}",t1,t54 - t52);
+                    logger.info("{}请求时间t53-54:{}", t1, t54 - t52);
 
                     //获取调价管理政策
                     List<PolicyInfo> policyInfos = null;
-                    if (finalOtaPolicyPriceMap != null && finalOtaPolicyPriceMap.size() !=0) {
+                    if (finalOtaPolicyPriceMap != null && finalOtaPolicyPriceMap.size() != 0) {
                         policyInfos = finalOtaPolicyPriceMap.get(routing.getAirline());
                     }
                     PolicyInfo policyInfo = getOtaPolicyPric(policyInfos, routing,
                             otaRequest, siteSearchRequest);
 
                     Long t55 = SystemClock.now();
-                    logger.info("{}请求时间t54-55:{}",t1, t55 - t54);
+                    logger.info("{}请求时间t54-55:{}", t1, t55 - t54);
 
                     //过滤没有匹配的政策
-                    if (CollectionUtils.isEmpty(commonPrices) &&  policyGlobal == null && policyInfo == null) {
+                    if (CollectionUtils.isEmpty(commonPrices) && policyGlobal == null && policyInfo == null) {
                         return null;
                     }
 
@@ -311,7 +309,7 @@ public class WebSearchServiceImpl implements WebSearchService {
                     //转成同步政策
                     OtaSyncPolicy mlOtaPolicy = transformOtaPolicy(routing, rebateMoney, otaPublishPrice, otaPolicyType, otaRequest, siteSearchRequest);
                     Long t56 = SystemClock.now();
-                    logger.info("{}请求时间t55-56:{}",t1, t56 - t55);
+                    logger.info("{}请求时间t55-56:{}", t1, t56 - t55);
                     return mlOtaPolicy;
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -321,7 +319,7 @@ public class WebSearchServiceImpl implements WebSearchService {
             }).filter(Objects::nonNull).collect(Collectors.toList());
 
             Long t6 = SystemClock.now();
-            logger.info("{}请求时间t56:{}",t1, t6 - t5);
+            logger.info("{}请求时间t56:{}", t1, t6 - t5);
 
             if (CollectionUtils.isEmpty(otaPolicyList)) {
                 return;
@@ -333,7 +331,35 @@ public class WebSearchServiceImpl implements WebSearchService {
             List<OtaSyncPolicy> otaPolicys = dealWithPriceRuleByLy(otaPolicylowests, siteSearchRequest, otaRequest);
 
             //同步政策批量保存到数据库
-//            mlOtaPolicyMapper.insertBatch(otaPolicys, otaRequest.getOtaSiteCode().replaceAll("-", "").toLowerCase());
+
+            otaSyncPolicyService.saveBatch(otaPolicys);
+
+            List<OtaSyncPolicySegment> otaPolicySegmentList = new ArrayList<>();
+            otaPolicys.stream()
+                    .forEach(m -> {
+                        m.getSourceDataSegments().stream().forEach(i -> {
+                            i.setId(null);
+                            i.setOtaSyncId(m.getId());
+                            i.setCodeShare(false);
+                            i.setVersion(1);
+                            i.setFlightNumber(StringUtils.isEmpty(i.getFlightNumber())?"":
+                                    i.getFlightNumber().replace(i.getAirline(),""));
+                            i.setFlightNumLimit(StringUtils.isEmpty(i.getFlightNumber())?0:1);
+                            i.setUniqueKey(m.getUniqueKey());
+                            i.setCreateTime(LocalDateTime.now());
+                            i.setUpdateTime(LocalDateTime.now());
+                            i.setCreateUserName("backPotMan");
+                            i.setUpdateUserName("backPotMan");
+                        });
+                        otaPolicySegmentList.addAll(m.getSourceDataSegments());
+                    });
+            otaSyncPolicySegmentService.saveBatch(otaPolicySegmentList);
+            logger.info("线程信息:{}", Thread.currentThread());
+            Long t7 = SystemClock.now();
+            logger.info("{}请求时间t67:{}",t1, t7 - t6);
+
+
+//            otaSyncPolicyMapper.insertBatch(otaPolicys, otaRequest.getOtaSiteCode().replaceAll("-", "").toLowerCase());
 //            List<MlOtaPolicySegment> otaPolicySegmentList = new ArrayList<>();
 //            otaPolicys.stream()
 //                    .forEach(m -> {
@@ -368,11 +394,12 @@ public class WebSearchServiceImpl implements WebSearchService {
 
     /**
      * 去重的key
+     *
      * @param otaRequest
      * @return
      */
-    public static String deduplicationKey(OtaRequest otaRequest){
-        StringBuffer stringBuffer=new StringBuffer();
+    public static String deduplicationKey(OtaRequest otaRequest) {
+        StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append(otaRequest.getFromAirport()).append(otaRequest.getToAirport()).append(otaRequest.getFromDate());
         return stringBuffer.toString();
     }
@@ -398,13 +425,13 @@ public class WebSearchServiceImpl implements WebSearchService {
                 //当存在 ，判断价格是否小于原来的方案
                 if (m.getOtaPushPrice().compareTo(routingMap.get(key).getOtaPushPrice()) < 0) {
                     //替换原来的方案
-                    m.setUniqueKey((key+m.getOtaPolicyType()).replaceAll("-","").replaceAll(":","")
-                    .replaceAll(" ",""));
+                    m.setUniqueKey((key + m.getOtaPolicyType()).replaceAll("-", "").replaceAll(":", "")
+                            .replaceAll(" ", ""));
                     routingMap.put(key, m);
                 }
             } else {
-                m.setUniqueKey((key+m.getOtaPolicyType()).replaceAll("-","").replaceAll(":","")
-                        .replaceAll(" ",""));
+                m.setUniqueKey((key + m.getOtaPolicyType()).replaceAll("-", "").replaceAll(":", "")
+                        .replaceAll(" ", ""));
                 routingMap.put(key, m);
             }
         });
@@ -414,6 +441,7 @@ public class WebSearchServiceImpl implements WebSearchService {
 
     /**
      * 将Date转成String线程安全
+     *
      * @param date
      * @return
      */
@@ -423,10 +451,11 @@ public class WebSearchServiceImpl implements WebSearchService {
 
     /**
      * 将String转成Date线程安全
+     *
      * @param str
      * @return
      */
-    public static LocalDate parseDate(String str){
+    public static LocalDate parseDate(String str) {
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern(FORMAT_PATTERN4);
         LocalDate localDate = LocalDate.parse(str, fmt);
         return localDate;
@@ -442,7 +471,7 @@ public class WebSearchServiceImpl implements WebSearchService {
      * @return
      */
     private OtaSyncPolicy transformOtaPolicy(SourceData sourceData, RebateMoney rebateMoney, OtaRule otaPolicyRule,
-                                           OtaRule otaPolicyType, OtaRequest otaRequest, SiteSearchRequest siteSearchRequest) throws IOException {
+                                             OtaRule otaPolicyType, OtaRequest otaRequest, SiteSearchRequest siteSearchRequest) throws IOException {
 
         OtaSyncPolicy otaPolicy = JSON.parseObject(JSON.toJSONString(sourceData), OtaSyncPolicy.class);
         //根据政策类型设置字段
@@ -466,7 +495,7 @@ public class WebSearchServiceImpl implements WebSearchService {
         BigDecimal money = (rebateMoney.getRuleAfterAmount() == null ? new BigDecimal(0) : rebateMoney.getRuleAfterAmount())
                 .add(rebateMoney.getRuleBeforeAmount() == null ? new BigDecimal(0) : rebateMoney.getRuleBeforeAmount());
         BigDecimal policyPrice = (price.multiply(new BigDecimal(1).subtract(commission.divide(new BigDecimal(100))))).add(money);
-        policyPrice =policyPrice.setScale(0, BigDecimal.ROUND_UP);
+        policyPrice = policyPrice.setScale(0, BigDecimal.ROUND_UP);
 
         //当选择数据源价格，OTA发布留钱、OTA发布返点需要赋值 政策估算价格
         if ("2".equals(otaPolicyRule.getParameter6())) {
@@ -480,7 +509,7 @@ public class WebSearchServiceImpl implements WebSearchService {
         //当选择FD价格，OTA发布留钱、OTA发布返点需要赋值并且当FD的价格为空取数据源价格且保十的倍数 政策估算价格
         if ("1".equals(otaPolicyRule.getParameter6())) {
             BigDecimal fdPrice = sourceData.getPublicPrice();
-            if(StringUtils.isEmpty(sourceData.getPublicPrice()) || sourceData.getPublicPrice().compareTo(sourceData.getSalePrice()) <0){
+            if (StringUtils.isEmpty(sourceData.getPublicPrice()) || sourceData.getPublicPrice().compareTo(sourceData.getSalePrice()) < 0) {
                 fdPrice = sourceData.getSalePrice();
             }
             if (sourceData.getPublicPrice() == null || sourceData.getPublicPrice().compareTo(BigDecimal.ZERO) <= 0) {
@@ -528,26 +557,26 @@ public class WebSearchServiceImpl implements WebSearchService {
         this.policyTransformOta(siteSearchRequest, otaPolicy);
 
         String dateTimeStr = "";
-        if(!StringUtils.isEmpty(sourceData.getTravelStartDate())){
+        if (!StringUtils.isEmpty(sourceData.getTravelStartDate())) {
             String[] timeStr = sourceData.getTravelStartDate().toString().split("-");
-            if(timeStr.length ==3){
+            if (timeStr.length == 3) {
                 dateTimeStr = timeStr[1] + timeStr[2];
             }
         }
-        String uuidStr = (sourceData.getChannel()+"#" +sourceData.getDepCity()+"-" + sourceData.getArrCity()+"#"+ (otaRequest.getOtaSiteCode().replaceAll("-", ""))).toUpperCase() +
-                "-"+sourceData.getId() + dateTimeStr;
+        String uuidStr = (sourceData.getChannel() + "#" + sourceData.getDepCity() + "-" + sourceData.getArrCity() + "#" + (otaRequest.getOtaSiteCode().replaceAll("-", ""))).toUpperCase() +
+                "-" + sourceData.getId() + dateTimeStr;
 
         //同程站点只允许字母和数字 (渠道代码+出发地+目的地+唯一)
-        if(otaRequest.getOtaSiteCode().contains(DirectConstants.OTA_SITE_CODE_LY)){
-            otaPolicy.setOtaPushPolicyId((uuidStr.replaceAll("#","").replaceAll("-","")));
-        }else {
+        if (otaRequest.getOtaSiteCode().contains(DirectConstants.OTA_SITE_CODE_LY)) {
+            otaPolicy.setOtaPushPolicyId((uuidStr.replaceAll("#", "").replaceAll("-", "")));
+        } else {
             otaPolicy.setOtaPushPolicyId(uuidStr);
         }
         String remarkInfoStr = remarkInfo(siteSearchRequest, sourceData, otaPolicy.getOtaPushPrice());
         otaPolicy.setTicketRemark(remarkInfoStr);//出票备注
         otaPolicy.setMinPassNumber(1);//最小乘客人数
         otaPolicy.setMaxPassNumber(9);//最大乘客人数
-        otaPolicy.setBidSpace(siteSearchRequest.getPolicyInfo()== null?"":siteSearchRequest.getPolicyInfo().getBidSpace()); //竞价空间
+        otaPolicy.setBidSpace(siteSearchRequest.getPolicyInfo() == null ? "" : siteSearchRequest.getPolicyInfo().getBidSpace()); //竞价空间
         //otaPolicy.setMinBuyAge();//最小购买年龄
         //otaPolicy.setMaxBuyAge();//最大购买年龄
         otaPolicy.setSeatNumn(sourceData.getSeatNum() == null ? (DirectConstants.FD.equals(sourceData.getSourceType()) || DirectConstants.NFD.equals(sourceData.getSourceType())) ? "9" : ""
@@ -607,7 +636,7 @@ public class WebSearchServiceImpl implements WebSearchService {
         }
         otaPolicy.setLatestTicketDay(latestValidDay);
         //销售时间FD的数据处理
-        if(DirectConstants.FD.equals(otaPolicy.getSourceType())){
+        if (DirectConstants.FD.equals(otaPolicy.getSourceType())) {
             otaPolicy.setSaleStartDate(LocalDate.now());
             otaPolicy.setSaleEndDate(otaPolicy.getTravelStartDate());
         }
@@ -747,7 +776,7 @@ public class WebSearchServiceImpl implements WebSearchService {
         List<OtaRule> otaPublishPrices = (List<OtaRule>) redisCache.getHashByValues(otaRequest.getOtaSiteCode() + "_" + DirectConstants.OTA_RULE_3);
         List<OtaRule> otaPriceRules = (List<OtaRule>) redisCache.getHashByValues(otaRequest.getOtaSiteCode() + "_" + DirectConstants.OTA_RULE_4);
         List<OtaRule> otaRealCabins = (List<OtaRule>) redisCache.getHashByValues(otaRequest.getOtaSiteCode() + "_" + DirectConstants.OTA_RULE_5);
-        List<String> airportPrioritys = PolicyMatch.getAirportPriority(otaRequest.getFromAirport(),otaRequest.getToAirport());
+        List<String> airportPrioritys = PolicyMatch.getAirportPriority(otaRequest.getFromAirport(), otaRequest.getToAirport());
         siteSearchRequest.setAirportPrioritys(airportPrioritys);
         siteSearchRequest.setSiteConfig(mlSourceDataSwtich);
         siteSearchRequest.setOtaRuleWhites(otaPolicyRuleWhites);
@@ -798,7 +827,7 @@ public class WebSearchServiceImpl implements WebSearchService {
     }
 
     //获取全局
-    public List<CommonPrice> findCommonPrice(SiteSearchRequest siteSearchRequest, SourceData mlSourceData, OtaRequest otaRequest){
+    public List<CommonPrice> findCommonPrice(SiteSearchRequest siteSearchRequest, SourceData mlSourceData, OtaRequest otaRequest) {
 
         List<CommonPrice> commonPriceList = redisCache.getHashByValues(DirectConstants.ML_COMMON_PRICE + "-" + mlSourceData.getSourceType());
         commonPriceList = Optional.ofNullable(commonPriceList).orElse(new ArrayList<>()).stream().filter(Objects::nonNull)
@@ -809,11 +838,11 @@ public class WebSearchServiceImpl implements WebSearchService {
     }
 
 
-    public Map<String,List<CommonPrice>> getCommonPriceMap(List<SourceData> mlSourceData){
+    public Map<String, List<CommonPrice>> getCommonPriceMap(List<SourceData> mlSourceData) {
         List<String> sourceTypes = mlSourceData.stream().filter(Objects::nonNull)
                 .filter(distinctByKey(SourceData::getSourceType)).map(m -> m.getSourceType()).collect(Collectors.toList());
-        List<CommonPrice> commonPriceList = redisCache.getBatchHash(DirectConstants.ML_COMMON_PRICE,sourceTypes);
-        if(!CollectionUtils.isEmpty(commonPriceList)){
+        List<CommonPrice> commonPriceList = redisCache.getBatchHash(DirectConstants.ML_COMMON_PRICE, sourceTypes);
+        if (!CollectionUtils.isEmpty(commonPriceList)) {
             return commonPriceList.stream().filter(Objects::nonNull).collect(Collectors.groupingBy(CommonPrice::getSourceType));
         }
         return null;
@@ -821,13 +850,13 @@ public class WebSearchServiceImpl implements WebSearchService {
 
 
     private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
-        Map<Object,Boolean> seen = new ConcurrentHashMap<>();
+        Map<Object, Boolean> seen = new ConcurrentHashMap<>();
         return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 
     //获取全局
-    public List<CommonPrice> getCommonPrice(List<CommonPrice> commonPriceList, SourceData mlSourceData, OtaRequest otaRequest){
-        if(CollectionUtils.isEmpty(commonPriceList)){
+    public List<CommonPrice> getCommonPrice(List<CommonPrice> commonPriceList, SourceData mlSourceData, OtaRequest otaRequest) {
+        if (CollectionUtils.isEmpty(commonPriceList)) {
             return null;
         }
 
@@ -839,7 +868,6 @@ public class WebSearchServiceImpl implements WebSearchService {
     }
 
 
-
     /**
      * 获取前返点政策
      *
@@ -847,7 +875,7 @@ public class WebSearchServiceImpl implements WebSearchService {
      * @param mlSourceData
      * @return
      */
-    public List<Object> findCommonPolicies(String keyType, String name, SourceData mlSourceData){
+    public List<Object> findCommonPolicies(String keyType, String name, SourceData mlSourceData) {
         String depArrkey = getPolicyKey(keyType, mlSourceData.getSourceType(), mlSourceData.getAirline(), mlSourceData.getDepCity(), mlSourceData.getArrCity());//机场-机场
         String depAllkey = getPolicyKey(keyType, mlSourceData.getSourceType(), mlSourceData.getAirline(), mlSourceData.getDepCity(), DirectConstants.AIRPORT_ALL);//机场-999
         String allArrkey = getPolicyKey(keyType, mlSourceData.getSourceType(), mlSourceData.getAirline(), DirectConstants.AIRPORT_ALL, mlSourceData.getArrCity());//999-机场
@@ -866,17 +894,18 @@ public class WebSearchServiceImpl implements WebSearchService {
 
     /**
      * 批量获取政策
-     * @param keyType QF-ALL :前返;HF-ALL :后返
+     *
+     * @param keyType      QF-ALL :前返;HF-ALL :后返
      * @param name
      * @param siteRoutings
      * @return
      */
-    public List<Object> getCommonPolicies(String keyType, String name,List<SourceData> siteRoutings){
-        if(CollectionUtils.isEmpty(siteRoutings)){
+    public List<Object> getCommonPolicies(String keyType, String name, List<SourceData> siteRoutings) {
+        if (CollectionUtils.isEmpty(siteRoutings)) {
             return null;
         }
-        Set<String> allKey =new ConcurrentHashSet<>();
-        siteRoutings.stream().filter(Objects::nonNull).forEach(mlSourceData ->{
+        Set<String> allKey = new ConcurrentHashSet<>();
+        siteRoutings.stream().filter(Objects::nonNull).forEach(mlSourceData -> {
             String depArrkey = getPolicyKey(keyType, mlSourceData.getSourceType(), mlSourceData.getAirline(), mlSourceData.getDepCity(), mlSourceData.getArrCity());//机场-机场
             String depAllkey = getPolicyKey(keyType, mlSourceData.getSourceType(), mlSourceData.getAirline(), mlSourceData.getDepCity(), DirectConstants.AIRPORT_ALL);//机场-999
             String allArrkey = getPolicyKey(keyType, mlSourceData.getSourceType(), mlSourceData.getAirline(), DirectConstants.AIRPORT_ALL, mlSourceData.getArrCity());//999-机场
@@ -886,12 +915,12 @@ public class WebSearchServiceImpl implements WebSearchService {
             allKey.add(allArrkey);
             allKey.add(allAllkey);
         });
-        return redisCache.batchHash(keyType + "-" + name,allKey);
+        return redisCache.batchHash(keyType + "-" + name, allKey);
     }
 
 
     public static String getPolicyKey(String keyType, String sourceType, String airline, String depAirport, String arrAirport) {
-        StringBuffer  val = new StringBuffer(keyType);
+        StringBuffer val = new StringBuffer(keyType);
         val.append(":");
         val.append(sourceType);
         val.append("-");
@@ -924,7 +953,7 @@ public class WebSearchServiceImpl implements WebSearchService {
      * @return
      */
     public static PolicyGlobal getCommonPolicie(List<PolicyGlobal> commonPolicies, SourceData routing,
-                                                  OtaRequest otaRequest, SiteSearchRequest siteSearchRequest) {
+                                                OtaRequest otaRequest, SiteSearchRequest siteSearchRequest) {
 
         if (CollectionUtils.isEmpty(commonPolicies)) {
             return null;
@@ -994,7 +1023,7 @@ public class WebSearchServiceImpl implements WebSearchService {
 //            return false;
 //        }
         //产品类型
-        if (!PolicyMatch.matchProductType(mlCommonPolicy.getProductType(), siteSearchRequest.getSiteConfig(),routing.getProductType())) {
+        if (!PolicyMatch.matchProductType(mlCommonPolicy.getProductType(), siteSearchRequest.getSiteConfig(), routing.getProductType())) {
             logger.info("产品类型");
             return false;
         }
@@ -1070,7 +1099,7 @@ public class WebSearchServiceImpl implements WebSearchService {
      * @return
      */
     public static PolicyInfo getOtaPolicyPric(List<PolicyInfo> otaPolicyPrices, SourceData routing,
-                                                    OtaRequest otaRequest, SiteSearchRequest siteSearchRequest) {
+                                              OtaRequest otaRequest, SiteSearchRequest siteSearchRequest) {
 
         if (CollectionUtils.isEmpty(otaPolicyPrices)) {
             return null;
@@ -1151,7 +1180,7 @@ public class WebSearchServiceImpl implements WebSearchService {
 //            return false;
 //        }
         //产品类型
-        if (!PolicyMatch.matchProductType(mlOtaPolicyPrice.getProductType(), siteSearchRequest.getSiteConfig(),routing.getProductType())) {
+        if (!PolicyMatch.matchProductType(mlOtaPolicyPrice.getProductType(), siteSearchRequest.getSiteConfig(), routing.getProductType())) {
             return false;
         }
         //提前出票时限
@@ -1190,8 +1219,8 @@ public class WebSearchServiceImpl implements WebSearchService {
         //根据站点和规则类型取出
         AtomicReference<OtaRule> rulePolicyType = new AtomicReference();
         List<String> airportPrioritys = siteSearchRequest.getAirportPrioritys();
-        for(String airStr : airportPrioritys){
-            String[] airArray  = StringUtils.split(airStr,"/");
+        for (String airStr : airportPrioritys) {
+            String[] airArray = StringUtils.split(airStr, "/");
             siteSearchRequest.getOtaPolicyTypes().stream()
                     .filter(Objects::nonNull).map(m -> {
                 if (StringUtils.isEmpty(m.getDepAirport())) {
@@ -1210,13 +1239,13 @@ public class WebSearchServiceImpl implements WebSearchService {
 
                     if (rulePolicyType.get() == null) {
                         rulePolicyType.set(f);
-                        if(!StringUtils.isEmpty(f.getAirline())){
-                            return ;
+                        if (!StringUtils.isEmpty(f.getAirline())) {
+                            return;
                         }
                     }
-                    if(rulePolicyType.get() != null && !StringUtils.isEmpty(f.getAirline())){
+                    if (rulePolicyType.get() != null && !StringUtils.isEmpty(f.getAirline())) {
                         rulePolicyType.set(f);
-                        return ;
+                        return;
                     }
 
                 }
@@ -1238,31 +1267,32 @@ public class WebSearchServiceImpl implements WebSearchService {
 
     /**
      * 同程需要根据运价规则进行处理
+     *
      * @param otaPolicys
      * @param siteSearchRequest
      * @param otaRequest
      * @return
      */
-    public List<OtaSyncPolicy> dealWithPriceRuleByLy(List<OtaSyncPolicy> otaPolicys,SiteSearchRequest siteSearchRequest,OtaRequest otaRequest){
+    public List<OtaSyncPolicy> dealWithPriceRuleByLy(List<OtaSyncPolicy> otaPolicys, SiteSearchRequest siteSearchRequest, OtaRequest otaRequest) {
         List<OtaSyncPolicy> mlOtaPolicies = new ArrayList<>();
-        if(otaRequest.getOtaSiteCode().contains(DirectConstants.OTA_SITE_CODE_LY)){
+        if (otaRequest.getOtaSiteCode().contains(DirectConstants.OTA_SITE_CODE_LY)) {
             List<OtaRule> otaPriceRules = siteSearchRequest.getOtaPriceRules();
-            if(!CollectionUtils.isEmpty(otaPriceRules)){
-                Map<String,String> priceRuleMap = otaPriceRules.stream().filter(Objects::nonNull).collect(Collectors.toMap(OtaRule::getAirline,OtaRule::getParameter2));
+            if (!CollectionUtils.isEmpty(otaPriceRules)) {
+                Map<String, String> priceRuleMap = otaPriceRules.stream().filter(Objects::nonNull).collect(Collectors.toMap(OtaRule::getAirline, OtaRule::getParameter2));
                 List<OtaSyncPolicy> finalMlOtaPolicies = mlOtaPolicies;
-                otaPolicys.stream().filter(Objects::nonNull).forEach(e ->{
-                    String value=  priceRuleMap.get(e.getAirline());
-                    if(!StringUtils.isEmpty(value)){
+                otaPolicys.stream().filter(Objects::nonNull).forEach(e -> {
+                    String value = priceRuleMap.get(e.getAirline());
+                    if (!StringUtils.isEmpty(value)) {
                         String[] priceValues = value.split("/");
-                        OtaSyncPolicy e1 = JSON.parseObject(JSON.toJSONString(e),OtaSyncPolicy.class);
-                        e1.setOtaPushPolicyId(e.getOtaPushPolicyId()+0);
+                        OtaSyncPolicy e1 = JSON.parseObject(JSON.toJSONString(e), OtaSyncPolicy.class);
+                        e1.setOtaPushPolicyId(e.getOtaPushPolicyId() + 0);
                         finalMlOtaPolicies.add(e1);
-                        IntStream.range(1,priceValues.length+1).forEach(i ->{
-                            OtaSyncPolicy o = JSON.parseObject(JSON.toJSONString(e),OtaSyncPolicy.class);
-                            PushPolicyType pushPolicyType = JSON.parseObject(o.getOtaExtendFileds(),PushPolicyType.class);
-                            pushPolicyType.setPriceRule(priceValues[i-1]);
-                            o.setUniqueKey(e.getUniqueKey()+priceValues[i-1]);
-                            o.setOtaPushPolicyId(e.getOtaPushPolicyId()+i);
+                        IntStream.range(1, priceValues.length + 1).forEach(i -> {
+                            OtaSyncPolicy o = JSON.parseObject(JSON.toJSONString(e), OtaSyncPolicy.class);
+                            PushPolicyType pushPolicyType = JSON.parseObject(o.getOtaExtendFileds(), PushPolicyType.class);
+                            pushPolicyType.setPriceRule(priceValues[i - 1]);
+                            o.setUniqueKey(e.getUniqueKey() + priceValues[i - 1]);
+                            o.setOtaPushPolicyId(e.getOtaPushPolicyId() + i);
                             o.setOtaExtendFileds(JSON.toJSONString(pushPolicyType));
                             finalMlOtaPolicies.add(o);
                         });
@@ -1270,8 +1300,8 @@ public class WebSearchServiceImpl implements WebSearchService {
                 });
             }
         }
-        if(!CollectionUtils.isEmpty(mlOtaPolicies)){
-           return mlOtaPolicies;
+        if (!CollectionUtils.isEmpty(mlOtaPolicies)) {
+            return mlOtaPolicies;
         }
         return otaPolicys;
     }
@@ -1279,13 +1309,13 @@ public class WebSearchServiceImpl implements WebSearchService {
     /**
      * 舱位替换
      */
-    public void realCabinRule(Map<String,List<OtaRule>> realCabinMap,SourceData mlSourceData){
-        if(!CollectionUtils.isEmpty(realCabinMap) && realCabinMap.size() >0){
-            mlSourceData.getSourceDataSegments().stream().filter(Objects::nonNull).forEach(e ->{
+    public void realCabinRule(Map<String, List<OtaRule>> realCabinMap, SourceData mlSourceData) {
+        if (!CollectionUtils.isEmpty(realCabinMap) && realCabinMap.size() > 0) {
+            mlSourceData.getSourceDataSegments().stream().filter(Objects::nonNull).forEach(e -> {
                 List<OtaRule> values = realCabinMap.get(e.getAirline());
-                if(!CollectionUtils.isEmpty(values)){
-                    Optional<OtaRule> mlOtaPolicyRule = values.stream().filter(Objects::nonNull).filter(f -> ("/"+f.getParameter3()+"/").contains(("/"+e.getCabin()+"/"))).findFirst();
-                    if(mlOtaPolicyRule.isPresent()) {
+                if (!CollectionUtils.isEmpty(values)) {
+                    Optional<OtaRule> mlOtaPolicyRule = values.stream().filter(Objects::nonNull).filter(f -> ("/" + f.getParameter3() + "/").contains(("/" + e.getCabin() + "/"))).findFirst();
+                    if (mlOtaPolicyRule.isPresent()) {
                         String c = e.getCabin();
                         e.setCabin(mlOtaPolicyRule.get().getParameter4());
                         e.setRealCabin(c);
@@ -1300,18 +1330,22 @@ public class WebSearchServiceImpl implements WebSearchService {
     public void searchAsync1(OtaRequest otaRequest) throws Exception {
         tansformSearch(otaRequest);
     }
+
     @Async("asyncExecutor2")
     public void searchAsync2(OtaRequest otaRequest) throws Exception {
         tansformSearch(otaRequest);
     }
+
     @Async("asyncExecutor3")
     public void searchAsync3(OtaRequest otaRequest) throws Exception {
         tansformSearch(otaRequest);
     }
+
     @Async("asyncExecutor4")
     public void searchAsync4(OtaRequest otaRequest) throws Exception {
         tansformSearch(otaRequest);
     }
+
     @Async("asyncExecutor5")
     public void searchAsync5(OtaRequest otaRequest) throws Exception {
         tansformSearch(otaRequest);
