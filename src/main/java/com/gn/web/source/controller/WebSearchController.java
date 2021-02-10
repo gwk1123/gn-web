@@ -109,7 +109,7 @@ public class WebSearchController implements ApplicationListener<ContextRefreshed
     @SneakyThrows
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
-        redisCache.removeKey(DirectConstants.DEDUPLICATION);
+        redisCache.deleteKey(DirectConstants.DEDUPLICATION);
         new Thread(() -> {
             logger.info("开始监听队列");
             while(true){
@@ -144,7 +144,7 @@ public class WebSearchController implements ApplicationListener<ContextRefreshed
             }
             if(!hasKey) {
                 try {
-                    redisCache.addHash(DirectConstants.DEDUPLICATION, key, key);
+                    redisCache.addHashMap(DirectConstants.DEDUPLICATION, key, key);
                 } catch (Exception customException) {
                     customException.printStackTrace();
                     logger.error("放入去重的key异常:{}", customException);

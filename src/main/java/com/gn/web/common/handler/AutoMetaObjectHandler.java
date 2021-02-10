@@ -28,13 +28,13 @@ public class AutoMetaObjectHandler implements MetaObjectHandler {
                 this.setFieldValByName("updateTime",localDateTime,metaObject);
             }
         }
-        boolean bol3 = metaObject.hasSetter("status");
-        if(bol3){
-            Object createTime = this.getFieldValByName("status",metaObject);
-            if(createTime == null){
-                this.setFieldValByName("status","0",metaObject);
-            }
-        }
+//        boolean bol3 = metaObject.hasSetter("status");
+//        if(bol3){
+//            Object createTime = this.getFieldValByName("status",metaObject);
+//            if(createTime == null){
+//                this.setFieldValByName("status","0",metaObject);
+//            }
+//        }
         boolean bol4 = metaObject.hasSetter("createUserName");
         if(bol4){
             Object createTime = this.getFieldValByName("createUserName",metaObject);

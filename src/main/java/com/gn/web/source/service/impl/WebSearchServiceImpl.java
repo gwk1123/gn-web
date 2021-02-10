@@ -740,13 +740,13 @@ public class WebSearchServiceImpl implements WebSearchService {
 
     public SiteSearchRequest setDataInformation(OtaRequest otaRequest) {
         SiteSearchRequest siteSearchRequest = new SiteSearchRequest();
-        SiteConfig mlSourceDataSwtich = (SiteConfig) redisCache.getHash(DirectConstants.SITE_CONFIG, otaRequest.getOtaSiteCode());
-        List<OtaRule> otaPolicyRuleWhites = (List<OtaRule>) redisCache.getHashByValues(otaRequest.getOtaSiteCode() + "-" + DirectConstants.OTA_RULE_0);
-        List<OtaRule> otaPolicyRuleBlacks = (List<OtaRule>) redisCache.getHashByValues(otaRequest.getOtaSiteCode() + "-" + DirectConstants.OTA_RULE_1);
-        List<OtaRule> otaPolicyTypes = (List<OtaRule>) redisCache.getHashByValues(otaRequest.getOtaSiteCode() + "-" + DirectConstants.OTA_RULE_2);
-        List<OtaRule> otaPublishPrices = (List<OtaRule>) redisCache.getHashByValues(otaRequest.getOtaSiteCode() + "-" + DirectConstants.OTA_RULE_3);
-        List<OtaRule> otaPriceRules = (List<OtaRule>) redisCache.getHashByValues(otaRequest.getOtaSiteCode() + "-" + DirectConstants.OTA_RULE_4);
-        List<OtaRule> otaRealCabins = (List<OtaRule>) redisCache.getHashByValues(otaRequest.getOtaSiteCode() + "-" + DirectConstants.OTA_RULE_5);
+        SiteConfig mlSourceDataSwtich = (SiteConfig) redisCache.getHashMap(DirectConstants.SITE_CONFIG, otaRequest.getOtaSiteCode());
+        List<OtaRule> otaPolicyRuleWhites = (List<OtaRule>) redisCache.getHashByValues(otaRequest.getOtaSiteCode() + "_" + DirectConstants.OTA_RULE_0);
+        List<OtaRule> otaPolicyRuleBlacks = (List<OtaRule>) redisCache.getHashByValues(otaRequest.getOtaSiteCode() + "_" + DirectConstants.OTA_RULE_1);
+        List<OtaRule> otaPolicyTypes = (List<OtaRule>) redisCache.getHashByValues(otaRequest.getOtaSiteCode() + "_" + DirectConstants.OTA_RULE_2);
+        List<OtaRule> otaPublishPrices = (List<OtaRule>) redisCache.getHashByValues(otaRequest.getOtaSiteCode() + "_" + DirectConstants.OTA_RULE_3);
+        List<OtaRule> otaPriceRules = (List<OtaRule>) redisCache.getHashByValues(otaRequest.getOtaSiteCode() + "_" + DirectConstants.OTA_RULE_4);
+        List<OtaRule> otaRealCabins = (List<OtaRule>) redisCache.getHashByValues(otaRequest.getOtaSiteCode() + "_" + DirectConstants.OTA_RULE_5);
         List<String> airportPrioritys = PolicyMatch.getAirportPriority(otaRequest.getFromAirport(),otaRequest.getToAirport());
         siteSearchRequest.setAirportPrioritys(airportPrioritys);
         siteSearchRequest.setSiteConfig(mlSourceDataSwtich);
@@ -858,7 +858,7 @@ public class WebSearchServiceImpl implements WebSearchService {
         keyIds.addAll(redisCache.getSet(allArrkey));
         keyIds.addAll(redisCache.getSet(allAllkey));
         if (!CollectionUtils.isEmpty(keyIds)) {
-            return (List<Object>) redisCache.getHashMap(keyType + "-" + name, keyIds);
+            return (List<Object>) redisCache.getHashList(keyType + "-" + name, keyIds);
         }
         return null;
     }
@@ -891,7 +891,7 @@ public class WebSearchServiceImpl implements WebSearchService {
 
 
     public static String getPolicyKey(String keyType, String sourceType, String airline, String depAirport, String arrAirport) {
-        StringBuilder val = new StringBuilder(keyType);
+        StringBuffer  val = new StringBuffer(keyType);
         val.append(":");
         val.append(sourceType);
         val.append("-");

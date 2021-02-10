@@ -1,5 +1,6 @@
 package com.gn.web.manual.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -108,13 +109,13 @@ public class OtaSyncPolicy extends BaseEntity implements Serializable {
     private BigDecimal fdDiscount;
 
     @ApiModelProperty(value = "全平台全局规则ID")
-    private Long commonPolicyId;
-
-    @ApiModelProperty(value = "全平台明细规则ID")
     private Long  policyGlobalId;
 
     @ApiModelProperty(value = "调价ID")
     private Long policyInfoId;
+
+    @ApiModelProperty(value = "站点ID")
+    private Long siteConfigId;
 
     @ApiModelProperty(value = "规则前返点 单位%")
     private BigDecimal ruleBeforeCommission;
@@ -225,6 +226,7 @@ public class OtaSyncPolicy extends BaseEntity implements Serializable {
     @ApiModelProperty(value = "竞价空间")
     private String bidSpace;
 
+    @TableField(exist = false)
     private List<OtaSyncPolicySegment> sourceDataSegments;
 
 }

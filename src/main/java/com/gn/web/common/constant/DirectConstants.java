@@ -37,6 +37,10 @@ public class DirectConstants {
 
     public static final String SITE_CONFIG = "site_config";
 
+    public static final String POLICY_GLOBAL = "policy_global";
+
+    public static final String POLICY_INFO = "policy_info";
+
     public static final String OTA_RULE_0 = "OTA-0"; //规则OTA-0(白名单)
 
     public static final String OTA_RULE_1 = "OTA-1"; //规则OTA-1(黑名单)

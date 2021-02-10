@@ -4,9 +4,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.gn.web.common.constant.DirectConstants;
+import com.gn.web.common.redis.RedisCache;
+import com.gn.web.manual.entity.PolicyInfo;
 import com.gn.web.manual.entity.SiteConfig;
 import com.gn.web.manual.mapper.SiteConfigMapper;
 import com.gn.web.manual.service.SiteConfigService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -27,6 +31,9 @@ import java.util.Optional;
 @Service
 public class SiteConfigServiceImpl extends ServiceImpl<SiteConfigMapper, SiteConfig> implements SiteConfigService {
 
+    @Autowired
+    private RedisCache redisCache;
+
     @Override
     public IPage<SiteConfig> pageSiteConfig(Page<SiteConfig> page, SiteConfig siteConfig){
 
@@ -40,14 +47,19 @@ public class SiteConfigServiceImpl extends ServiceImpl<SiteConfigMapper, SiteCon
     @Transactional(rollbackFor = Exception.class)
     public boolean saveSiteConfig(SiteConfig siteConfig){
         Assert.notNull(siteConfig, "政策站点配置为空");
-        return this.save(siteConfig);
+        boolean flay= this.save(siteConfig);
+        saveOrUpdateCache( siteConfig);
+        return flay;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean removeSiteConfig(String id){
         Assert.hasText(id, "主键为空");
-        return this.removeById(id);
+        boolean flay= this.removeById(id);
+        SiteConfig siteConfig = this.getById(id);
+        saveOrUpdateCache( siteConfig);
+        return flay;
     }
 
     @Override
@@ -61,11 +73,22 @@ public class SiteConfigServiceImpl extends ServiceImpl<SiteConfigMapper, SiteCon
     @Transactional(rollbackFor = Exception.class)
     public boolean updateSiteConfig(SiteConfig siteConfig){
         Assert.notNull(siteConfig, "政策站点配置为空");
-        return this.updateById(siteConfig);
+        boolean flay= this.updateById(siteConfig);
+        saveOrUpdateCache( siteConfig);
+        return flay;
     }
 
     @Override
     public SiteConfig getSiteConfigById(String id){
         return  this.getById(id);
     }
+
+    public void saveOrUpdateCache(SiteConfig siteConfig){
+        if(DirectConstants.NORMAL.equals(siteConfig.getStatus())){
+            redisCache.addHashMap(DirectConstants.SITE_CONFIG,siteConfig.getOtaSiteCode(),siteConfig);
+        }else {
+            redisCache.removeHashKey(DirectConstants.SITE_CONFIG,siteConfig.getOtaSiteCode());
+        }
+    }
+
 }

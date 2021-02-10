@@ -46,11 +46,6 @@ public class RedisCache {
         redisTemplate.delete(key);
     }
 
-
-    public void removeKey(String key){
-        redisTemplate.delete(key);
-    }
-
     public Long removeHashKey(String key,Object... keyHashs) throws CustomException {
 
         return redisTemplate.opsForHash().delete(key,keyHashs);
@@ -64,11 +59,11 @@ public class RedisCache {
         return redisTemplate.opsForHash().hasKey(key, keyHash);
     }
 
-    public void addHash(String key,String keyHash,Object value) throws CustomException {
+    public void addHashMap(String key,String keyHash,Object value) throws CustomException {
         redisTemplate.opsForHash().put(key,keyHash,value);
     }
 
-    public Object getHash(String key,String keyHash) throws CustomException {
+    public Object getHashMap(String key,String keyHash) throws CustomException {
             return redisTemplate.opsForHash().get(key,keyHash);
     }
 
@@ -76,15 +71,21 @@ public class RedisCache {
         return  redisTemplate.opsForHash().entries(key);
     }
 
+    public List<?> getHashList(String key, Set<Object> keys){
+        return  (List<?>)redisTemplate.opsForHash().multiGet(key, keys);
+    }
+
     public Set<String> getSet(String key){
         return redisTemplate.opsForSet().members(key);
     }
 
-    public List<?> getHashMap(String key, Set<Object> keys){
-        return  (List<?>)redisTemplate.opsForHash().multiGet(key, keys);
+    public void addSet(String key,Object value){
+        redisTemplate.opsForSet().add(key,value);
     }
 
-
+    public void removeSetKey(String key,Object value){
+        redisTemplate.opsForSet().remove(key,value);
+    }
 
     /**
      * 批量获取政策
