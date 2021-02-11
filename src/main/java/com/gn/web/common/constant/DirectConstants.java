@@ -37,6 +37,8 @@ public class DirectConstants {
 
     public static final String SITE_CONFIG = "site_config";
 
+    public static final String COMMON_PRICE = "common_price"; //全平台调价
+
     public static final String POLICY_GLOBAL = "policy_global";
 
     public static final String POLICY_INFO = "policy_info";
@@ -63,8 +65,6 @@ public class DirectConstants {
     public static final String  FLIGHT_NUM_LIMIT_ALL = "0"; //航班号限制:不限制
 
     public static final String TWO_WAY = "双向";
-
-    public static final String  ML_COMMON_PRICE = "ML_COMMON_PRICE"; //全平台调价
 
     public static final String DEL_SYNC_POLICY_URL = "http://192.168.1.30:8888/api/policy/manual/deletePolicy"; //全平台调价
 

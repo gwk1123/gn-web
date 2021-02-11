@@ -141,7 +141,7 @@ public class RedisCache {
         try {
             if(CollectionUtils.isNotEmpty(allKey)) {
                 allKey.stream().filter(Objects::nonNull).forEach(key -> {
-                    String hashKey = keyType + "-" + key;
+                    String hashKey = keyType + "_" + key;
                     List values = redisTemplate.opsForHash().values(hashKey);
                     if (CollectionUtils.isNotEmpty(values)) {
                         objects.addAll(values);

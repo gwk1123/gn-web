@@ -224,16 +224,16 @@ public class WebSearchServiceImpl implements WebSearchService {
 //            }
             Long tqz = SystemClock.now();
             logger.info("{}转化全平台政策前返耗时:{}", t1, tqz - tq);
-            //批量获取全平台政策后返
+            //批量获取全局政策
             List<Object> ho = getCommonPolicies("HF-ALL", "MLCommonPolicy", siteRoutings);
             Long th = SystemClock.now();
-            logger.info("{}批量获取全平台政策后返耗时:{}", t1, th - tqz);
+            logger.info("{}批量获取全局政策后返耗时:{}", t1, th - tqz);
             Map<String, List<PolicyGlobal>> afterCommonPolicieMap = null;
             if (!CollectionUtils.isEmpty(ho)) {
                 afterCommonPolicieMap = ho.stream().filter(Objects::nonNull).map(m -> objectMapper.convertValue(m, PolicyGlobal.class)).collect(Collectors.groupingBy(PolicyGlobal::getAirline));
             }
             Long thz = SystemClock.now();
-            logger.info("{}转化全平台政策后返耗时:{}", t1, thz - th);
+            logger.info("{}转化全局政策后返耗时:{}", t1, thz - th);
             //批量获取调价管理政策
             List<Object> otaObjects = getCommonPolicies(otaRequest.getOtaSiteCode(), "MlOtaPolicyPrice", siteRoutings);
             Long to = SystemClock.now();
@@ -246,7 +246,6 @@ public class WebSearchServiceImpl implements WebSearchService {
             logger.info("{}转化调价管理政策耗时:{}", t1, toz - to);
 
             Map<String, List<PolicyGlobal>> finalAfterCommonPolicieMap = afterCommonPolicieMap;
-//            Map<String, List<MlCommonPolicy>> finalBeforeCommonPolicieMap = beforeCommonPolicieMap;
             Map<String, List<PolicyInfo>> finalOtaPolicyPriceMap = otaPolicyPriceMap;
             Map<String, List<OtaRule>> finalRealCabinMap = realCabinMap;
             List<OtaSyncPolicy> otaPolicyList = siteRoutings.parallelStream().filter(Objects::nonNull).map(routing -> {
@@ -827,21 +826,10 @@ public class WebSearchServiceImpl implements WebSearchService {
     }
 
     //获取全局
-    public List<CommonPrice> findCommonPrice(SiteSearchRequest siteSearchRequest, SourceData mlSourceData, OtaRequest otaRequest) {
-
-        List<CommonPrice> commonPriceList = redisCache.getHashByValues(DirectConstants.ML_COMMON_PRICE + "-" + mlSourceData.getSourceType());
-        commonPriceList = Optional.ofNullable(commonPriceList).orElse(new ArrayList<>()).stream().filter(Objects::nonNull)
-                .filter(f -> {
-                    return matchCommonPrice(f, mlSourceData, otaRequest);
-                }).collect(Collectors.toList());
-        return commonPriceList;
-    }
-
-
     public Map<String, List<CommonPrice>> getCommonPriceMap(List<SourceData> mlSourceData) {
         List<String> sourceTypes = mlSourceData.stream().filter(Objects::nonNull)
                 .filter(distinctByKey(SourceData::getSourceType)).map(m -> m.getSourceType()).collect(Collectors.toList());
-        List<CommonPrice> commonPriceList = redisCache.getBatchHash(DirectConstants.ML_COMMON_PRICE, sourceTypes);
+        List<CommonPrice> commonPriceList = redisCache.getBatchHash(DirectConstants.COMMON_PRICE, sourceTypes);
         if (!CollectionUtils.isEmpty(commonPriceList)) {
             return commonPriceList.stream().filter(Objects::nonNull).collect(Collectors.groupingBy(CommonPrice::getSourceType));
         }

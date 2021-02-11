@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -96,6 +97,10 @@ public class OtaRuleServiceImpl extends ServiceImpl<OtaRuleMapper, OtaRule> impl
     }
 
     public void saveOrUpdateCache(OtaRule otaRule){
+        String devStr= StringUtils.isEmpty(otaRule.getDepAirport())?DirectConstants.AIRPORT_ALL:otaRule.getDepAirport();
+        String arrString =  StringUtils.isEmpty(otaRule.getArrAirport())?DirectConstants.AIRPORT_ALL:otaRule.getArrAirport();
+        otaRule.setDepAirport(devStr);
+        otaRule.setArrAirport(arrString);
         if(DirectConstants.NORMAL.equals(otaRule.getStatus())){
             redisCache.addHashMap(otaRule.getOtaSiteCode()+"_"+otaRule.getRuleType(),String.valueOf(otaRule.getId()),otaRule);
         }else {

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.xml.ws.Action;
 import java.util.List;
@@ -89,6 +90,10 @@ public class PolicyInfoServiceImpl extends ServiceImpl<PolicyInfoMapper, PolicyI
     }
 
     public void saveOrUpdateCache(PolicyInfo policyInfo) {
+        String devStr= StringUtils.isEmpty(policyInfo.getDepAirport())?DirectConstants.AIRPORT_ALL:policyInfo.getDepAirport();
+        String arrString =  StringUtils.isEmpty(policyInfo.getArrAirport())?DirectConstants.AIRPORT_ALL:policyInfo.getArrAirport();
+        policyInfo.setDepAirport(devStr);
+        policyInfo.setArrAirport(arrString);
         if (DirectConstants.NORMAL.equals(policyInfo.getStatus())) {
             String setKey = RedisCacheKeyUtils.policyInfoSetKey(policyInfo);
             redisCache.addSet(setKey, String.valueOf(policyInfo.getId()));

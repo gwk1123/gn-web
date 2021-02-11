@@ -4,14 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.gn.web.common.constant.DirectConstants;
 import com.gn.web.common.redis.RedisCache;
 import com.gn.web.common.redis.RedisCacheKeyUtils;
-import com.gn.web.manual.entity.OtaRule;
-import com.gn.web.manual.entity.PolicyGlobal;
-import com.gn.web.manual.entity.PolicyInfo;
-import com.gn.web.manual.entity.SiteConfig;
-import com.gn.web.manual.mapper.OtaRuleMapper;
-import com.gn.web.manual.mapper.PolicyGlobalMapper;
-import com.gn.web.manual.mapper.PolicyInfoMapper;
-import com.gn.web.manual.mapper.SiteConfigMapper;
+import com.gn.web.manual.entity.*;
+import com.gn.web.manual.mapper.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +13,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,6 +29,8 @@ public class InitCacheRunner implements CommandLineRunner {
     @Autowired
     private SiteConfigMapper siteConfigMapper;
     @Autowired
+    private CommonPriceMapper commonPriceMapper;
+    @Autowired
     private RedisCache redisCache;
 
     private Logger logger =LoggerFactory.getLogger(InitCacheRunner.class);
@@ -48,6 +43,7 @@ public class InitCacheRunner implements CommandLineRunner {
     public void initData(){
         logger.info("初始化缓存。。。");
         initSiteConfig();
+        initCommonPrice();
         initOtaRule();
         initPolicyGlobal();
         initPolicyInfo();
@@ -66,6 +62,20 @@ public class InitCacheRunner implements CommandLineRunner {
         }
     }
 
+    public void initCommonPrice() {
+        QueryWrapper<CommonPrice> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(CommonPrice::getStatus, DirectConstants.NORMAL);
+        List<CommonPrice> commonPrices = commonPriceMapper.selectList(queryWrapper);
+        if (!CollectionUtils.isEmpty(commonPrices)) {
+            List<String> commonPriceList = commonPrices.stream().map(CommonPrice::getSourceType).distinct().collect(Collectors.toList());
+            commonPriceList.stream().forEach(e -> {
+                redisCache.deleteKey(DirectConstants.COMMON_PRICE + "_" + e);
+            });
+            commonPrices.stream().forEach(commonPrice -> {
+                redisCache.addHashMap(DirectConstants.COMMON_PRICE + "_" + commonPrice.getSourceType(), String.valueOf(commonPrice.getId()), commonPrice);
+            });
+        }
+    }
 
     public void initOtaRule(){
         QueryWrapper<OtaRule> queryWrapper=new QueryWrapper<>();
