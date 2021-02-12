@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gn.web.common.constant.DirectConstants;
 import com.gn.web.common.redis.RedisCache;
+import com.gn.web.common.redis.RedisCacheKeyUtils;
 import com.gn.web.common.utils.GzipUtil;
 import com.gn.web.manual.entity.*;
 import com.gn.web.manual.mapper.OtaSyncPolicyMapper;
@@ -905,6 +906,56 @@ public class WebSearchServiceImpl implements WebSearchService {
         });
         return redisCache.batchHash(keyType + "-" + name, allKey);
     }
+
+
+    public List<Object> getPolicyGlobals(List<SourceData> siteRoutings){
+        if (CollectionUtils.isEmpty(siteRoutings)) {
+            return null;
+        }
+        Set<String> allKey = new ConcurrentHashSet<>();
+        siteRoutings.stream().filter(Objects::nonNull).forEach(sourceData -> {
+
+            PolicyGlobal depArr=new PolicyGlobal();
+            depArr.setSourceType(sourceData.getSourceType());
+            depArr.setAirline(sourceData.getAirline());
+            depArr.setDepAirport(sourceData.getDepCity());
+            depArr.setArrAirport(sourceData.getArrCity());
+            String depArrkey = RedisCacheKeyUtils.policyGlobalSetKey(depArr);//机场-机场
+
+            PolicyGlobal depAll=new PolicyGlobal();
+            depAll.setSourceType(sourceData.getSourceType());
+            depAll.setAirline(sourceData.getAirline());
+            depAll.setDepAirport(sourceData.getDepCity());
+            depAll.setArrAirport(DirectConstants.AIRPORT_ALL);
+            String depAllkey = RedisCacheKeyUtils.policyGlobalSetKey(depAll);//机场-999
+
+            PolicyGlobal allArr=new PolicyGlobal();
+            allArr.setSourceType(sourceData.getSourceType());
+            allArr.setAirline(sourceData.getAirline());
+            allArr.setDepAirport(DirectConstants.AIRPORT_ALL);
+            allArr.setArrAirport(sourceData.getArrCity());
+            String allArrkey = RedisCacheKeyUtils.policyGlobalSetKey(allArr);//999-机场
+
+            PolicyGlobal allAll=new PolicyGlobal();
+            allAll.setSourceType(sourceData.getSourceType());
+            allAll.setAirline(sourceData.getAirline());
+            allAll.setDepAirport(DirectConstants.AIRPORT_ALL);
+            allAll.setArrAirport(DirectConstants.AIRPORT_ALL);
+            String allAllkey = RedisCacheKeyUtils.policyGlobalSetKey(allAll);//999-999
+
+            allKey.add(depArrkey);
+            allKey.add(depAllkey);
+            allKey.add(allArrkey);
+            allKey.add(allAllkey);
+        });
+        List<Object> ids= redisCache.getPolicyByIds(allKey);
+        if(CollectionUtils.isEmpty(ids)){
+            return  null;
+        }
+        Set<Object> idSet = ids.stream().collect(Collectors.toSet());
+        return redisCache.getHashList(DirectConstants.POLICY_GLOBAL,idSet);
+    }
+
 
 
     public static String getPolicyKey(String keyType, String sourceType, String airline, String depAirport, String arrAirport) {

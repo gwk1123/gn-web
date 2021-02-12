@@ -71,8 +71,8 @@ public class RedisCache {
         return  redisTemplate.opsForHash().entries(key);
     }
 
-    public List<?> getHashList(String key, Set<Object> keys){
-        return  (List<?>)redisTemplate.opsForHash().multiGet(key, keys);
+    public List<Object> getHashList(String key, Set<Object> keys){
+        return  (List<Object>)redisTemplate.opsForHash().multiGet(key, keys);
     }
 
     public Set<String> getSet(String key){
@@ -86,6 +86,26 @@ public class RedisCache {
     public void removeSetKey(String key,Object value){
         redisTemplate.opsForSet().remove(key,value);
     }
+
+    public List<Object> getPolicyByIds(Set<String> allKey){
+        if (CollectionUtils.isNotEmpty(allKey)) {
+            List<Object> result = redisTemplate.executePipelined(new SessionCallback() {
+                //执行流水线
+                @Override
+                public Object execute(RedisOperations operations) throws DataAccessException {
+                    //批量处理的内容
+                    for (String key : allKey) {
+                        operations.opsForSet().members(key);
+                    }
+                    //注意这里一定要返回null，最终pipeline的执行结果，才会返回给最外层
+                    return null;
+                }
+            });
+            return result;
+        }
+        return null;
+    }
+
 
     /**
      * 批量获取政策
