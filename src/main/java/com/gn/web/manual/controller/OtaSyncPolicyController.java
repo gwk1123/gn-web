@@ -5,10 +5,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gn.web.common.utils.CommonResult;
 import com.gn.web.manual.entity.OtaSyncPolicy;
 import com.gn.web.manual.service.OtaSyncPolicyService;
+import com.gn.web.source.service.SourceDataService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +29,8 @@ import java.util.List;
 public class OtaSyncPolicyController {
 
     private final OtaSyncPolicyService taSyncPolicyService;
+    @Autowired
+    private SourceDataService ourcedataDataService;
 
     public OtaSyncPolicyController(OtaSyncPolicyService taSyncPolicyService){this.taSyncPolicyService = taSyncPolicyService;}
 
@@ -62,6 +66,7 @@ public class OtaSyncPolicyController {
         })
         @GetMapping("/ota_sync_policy/page")
         public CommonResult pageOtaSyncPolicy(Page<OtaSyncPolicy> page, OtaSyncPolicy otaSyncPolicy){
+            ourcedataDataService.sourceDataCache();
         return CommonResult.success(taSyncPolicyService.pageOtaSyncPolicy(page, otaSyncPolicy));
         }
 

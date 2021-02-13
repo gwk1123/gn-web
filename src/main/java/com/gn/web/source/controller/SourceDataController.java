@@ -22,7 +22,7 @@ import java.util.List;
  */
 @Api(tags = {"政策数据源"})
 @RestController
-@RequestMapping("/sourcedata-data")
+@RequestMapping("/source_data")
 public class SourceDataController {
 
     private final SourceDataService ourcedataDataService;

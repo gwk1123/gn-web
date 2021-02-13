@@ -226,7 +226,7 @@ public class WebSearchServiceImpl implements WebSearchService {
             Long tqz = SystemClock.now();
             logger.info("{}转化全平台政策前返耗时:{}", t1, tqz - tq);
             //批量获取全局政策
-            List<Object> ho = getCommonPolicies("HF-ALL", "MLCommonPolicy", siteRoutings);
+            List<Object> ho = getPolicyGlobals( siteRoutings);
             Long th = SystemClock.now();
             logger.info("{}批量获取全局政策后返耗时:{}", t1, th - tqz);
             Map<String, List<PolicyGlobal>> afterCommonPolicieMap = null;
@@ -236,7 +236,7 @@ public class WebSearchServiceImpl implements WebSearchService {
             Long thz = SystemClock.now();
             logger.info("{}转化全局政策后返耗时:{}", t1, thz - th);
             //批量获取调价管理政策
-            List<Object> otaObjects = getCommonPolicies(otaRequest.getOtaSiteCode(), "MlOtaPolicyPrice", siteRoutings);
+            List<Object> otaObjects = getPolicyInfos( siteRoutings);
             Long to = SystemClock.now();
             logger.info("{}批量获取调价管理政策耗时:{}", t1, to - thz);
             Map<String, List<PolicyInfo>> otaPolicyPriceMap = null;
@@ -955,6 +955,57 @@ public class WebSearchServiceImpl implements WebSearchService {
         Set<Object> idSet = ids.stream().collect(Collectors.toSet());
         return redisCache.getHashList(DirectConstants.POLICY_GLOBAL,idSet);
     }
+
+
+    public List<Object> getPolicyInfos(List<SourceData> siteRoutings){
+        if (CollectionUtils.isEmpty(siteRoutings)) {
+            return null;
+        }
+        Set<String> allKey = new ConcurrentHashSet<>();
+        siteRoutings.stream().filter(Objects::nonNull).forEach(sourceData -> {
+
+            PolicyInfo depArr=new PolicyInfo();
+            depArr.setSourceType(sourceData.getSourceType());
+            depArr.setAirline(sourceData.getAirline());
+            depArr.setDepAirport(sourceData.getDepCity());
+            depArr.setArrAirport(sourceData.getArrCity());
+            String depArrkey = RedisCacheKeyUtils.policyInfoSetKey(depArr);//机场-机场
+
+            PolicyInfo depAll=new PolicyInfo();
+            depAll.setSourceType(sourceData.getSourceType());
+            depAll.setAirline(sourceData.getAirline());
+            depAll.setDepAirport(sourceData.getDepCity());
+            depAll.setArrAirport(DirectConstants.AIRPORT_ALL);
+            String depAllkey = RedisCacheKeyUtils.policyInfoSetKey(depAll);//机场-999
+
+            PolicyInfo allArr=new PolicyInfo();
+            allArr.setSourceType(sourceData.getSourceType());
+            allArr.setAirline(sourceData.getAirline());
+            allArr.setDepAirport(DirectConstants.AIRPORT_ALL);
+            allArr.setArrAirport(sourceData.getArrCity());
+            String allArrkey = RedisCacheKeyUtils.policyInfoSetKey(allArr);//999-机场
+
+            PolicyInfo allAll=new PolicyInfo();
+            allAll.setSourceType(sourceData.getSourceType());
+            allAll.setAirline(sourceData.getAirline());
+            allAll.setDepAirport(DirectConstants.AIRPORT_ALL);
+            allAll.setArrAirport(DirectConstants.AIRPORT_ALL);
+            String allAllkey = RedisCacheKeyUtils.policyInfoSetKey(allAll);//999-999
+
+            allKey.add(depArrkey);
+            allKey.add(depAllkey);
+            allKey.add(allArrkey);
+            allKey.add(allAllkey);
+        });
+        List<Object> ids= redisCache.getPolicyByIds(allKey);
+        if(CollectionUtils.isEmpty(ids)){
+            return  null;
+        }
+        Set<Object> idSet = ids.stream().collect(Collectors.toSet());
+        return redisCache.getHashList(DirectConstants.POLICY_GLOBAL,idSet);
+    }
+
+
 
 
 

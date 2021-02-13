@@ -65,4 +65,6 @@ public interface SourceDataService extends IService<SourceData> {
      * @return SourceData
      */
     SourceData getSourceDataById(String id);
+
+    void sourceDataCache();
 }
