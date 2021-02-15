@@ -66,8 +66,6 @@ public class OtaSyncPolicyController {
         })
         @GetMapping("/ota_sync_policy/page")
         public CommonResult pageOtaSyncPolicy(Page<OtaSyncPolicy> page, OtaSyncPolicy otaSyncPolicy){
-            ourcedataDataService.sourceDataCache();
-            ourcedataDataService.sourceDataCache();
         return CommonResult.success(taSyncPolicyService.pageOtaSyncPolicy(page, otaSyncPolicy));
         }
 
