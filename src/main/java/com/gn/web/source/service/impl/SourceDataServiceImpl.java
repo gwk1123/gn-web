@@ -25,8 +25,11 @@ import org.springframework.util.Assert;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.springframework.util.CollectionUtils;
 
@@ -101,7 +104,7 @@ public class SourceDataServiceImpl extends ServiceImpl<SourceDataMapper, SourceD
     /**
      * 将数据库的初始化到缓存中
      * */
-    @Async
+//    @Async
     public void sourceDataCache(){
         List<SourceData> result=this.list(new LambdaQueryWrapper<SourceData>().groupBy(SourceData::getDepCity,SourceData::getArrCity,SourceData::getTravelStartDate).select(SourceData::getDepCity,SourceData::getArrCity,SourceData::getTravelStartDate));
         if(!CollectionUtils.isEmpty(result)){
@@ -118,14 +121,23 @@ public class SourceDataServiceImpl extends ServiceImpl<SourceDataMapper, SourceD
                        List<SourceDataSegment> sourceDataSegments=sourceDataSegmentService.list(queryWrapperSegment);
                        s.setSourceDataSegments(sourceDataSegments);
                    });
-                   String str = JSON.toJSONString(sourceDataList);
-                    byte[] res=GzipUtil.compressStream(str).toByteArray();
+                    Map<String,List<SourceData>> sourceDataMap = sourceDataList.stream().collect(Collectors.groupingBy(
+                            g ->g.getSourceType()
+                    ));
                     OtaRequest otaRequest =new OtaRequest();
                     otaRequest.setFromAirport(e.getDepCity());
                     otaRequest.setToAirport(e.getArrCity());
                     otaRequest.setFromDate(e.getTravelStartDate().format(fmt));
                     String key =getRedisKey( otaRequest);
-                    redisCache.addHashMap(key,e.getSourceType(),res);
+
+                    Map<String,byte[]> cacheMap = new ConcurrentHashMap<>();
+                    sourceDataMap.entrySet().stream().forEach( s ->{
+                        String setKey = s.getKey();
+                        String str = JSON.toJSONString(s.getValue());
+                        byte[] res=GzipUtil.compressStream(str).toByteArray();
+                        cacheMap.put(setKey,res);
+                    });
+                    redisCache.addHashMapAll(key,cacheMap);
                 },threadPoolTaskExecutor);
             });
         }

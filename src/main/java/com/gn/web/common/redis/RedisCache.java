@@ -63,6 +63,10 @@ public class RedisCache {
         redisTemplate.opsForHash().put(key,keyHash,value);
     }
 
+    public void addHashMapAll(String key, Map<String, byte[]> map){
+        redisTemplate.opsForHash().putAll(key,map);
+    }
+
     public Object getHashMap(String key,String keyHash) throws CustomException {
             return redisTemplate.opsForHash().get(key,keyHash);
     }
