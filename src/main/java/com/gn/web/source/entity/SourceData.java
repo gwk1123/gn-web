@@ -1,5 +1,6 @@
 package com.gn.web.source.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -171,5 +172,6 @@ public class SourceData implements Serializable {
     @ApiModelProperty(value = "方案唯一key，航司-出发地-目的地-舱位1-舱位2")
     private String uniqueKey;
 
+    @TableField(exist = false)
     private List<SourceDataSegment> sourceDataSegments;
 }

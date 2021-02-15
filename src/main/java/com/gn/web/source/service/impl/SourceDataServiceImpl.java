@@ -17,6 +17,7 @@ import com.gn.web.source.service.SourceDataService;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -100,6 +101,7 @@ public class SourceDataServiceImpl extends ServiceImpl<SourceDataMapper, SourceD
     /**
      * 将数据库的初始化到缓存中
      * */
+    @Async
     public void sourceDataCache(){
         List<SourceData> result=this.list(new LambdaQueryWrapper<SourceData>().groupBy(SourceData::getDepCity,SourceData::getArrCity,SourceData::getTravelStartDate).select(SourceData::getDepCity,SourceData::getArrCity,SourceData::getTravelStartDate));
         if(!CollectionUtils.isEmpty(result)){
