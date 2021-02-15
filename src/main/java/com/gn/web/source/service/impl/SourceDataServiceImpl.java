@@ -104,7 +104,7 @@ public class SourceDataServiceImpl extends ServiceImpl<SourceDataMapper, SourceD
     /**
      * 将数据库的初始化到缓存中
      * */
-//    @Async
+    @Async
     public void sourceDataCache(){
         List<SourceData> result=this.list(new LambdaQueryWrapper<SourceData>().groupBy(SourceData::getDepCity,SourceData::getArrCity,SourceData::getTravelStartDate).select(SourceData::getDepCity,SourceData::getArrCity,SourceData::getTravelStartDate));
         if(!CollectionUtils.isEmpty(result)){
