@@ -3,10 +3,10 @@ package com.gn.web.source.service.impl;
 import cn.hutool.core.date.SystemClock;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gn.web.common.redis.RedisCache;
 import com.gn.web.common.utils.GzipUtil;
 import com.gn.web.source.entity.OtaRequest;
@@ -15,16 +15,16 @@ import com.gn.web.source.entity.SourceDataSegment;
 import com.gn.web.source.mapper.SourceDataMapper;
 import com.gn.web.source.service.SourceDataSegmentService;
 import com.gn.web.source.service.SourceDataService;
-import lombok.var;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -35,8 +35,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
-
-import org.springframework.util.CollectionUtils;
 
 
 /**
@@ -125,12 +123,24 @@ public class SourceDataServiceImpl extends ServiceImpl<SourceDataMapper, SourceD
                             .eq(SourceData::getDepCity,e.getDepCity())
                             .eq(SourceData::getArrCity,e.getArrCity());
                    List<SourceData>sourceDataList= this.list(queryWrapper);
-                   sourceDataList.stream().forEach(s ->{
-                       QueryWrapper<SourceDataSegment>queryWrapperSegment = new QueryWrapper<>();
-                       queryWrapperSegment.lambda().eq(SourceDataSegment::getSourceDataId,s.getId());
-                       List<SourceDataSegment> sourceDataSegments=sourceDataSegmentService.list(queryWrapperSegment);
-                       s.setSourceDataSegments(sourceDataSegments);
-                   });
+                    Long c1 = SystemClock.now();
+                    logger.info("uuid:{},c1耗时:{}",uid,c1-t1);
+
+                    List<Long> ids = sourceDataList.stream().map(m -> m.getId()).collect(Collectors.toList());
+                    QueryWrapper<SourceDataSegment> queryWrapperSegment = new QueryWrapper<>();
+                    queryWrapperSegment.lambda().in(SourceDataSegment::getSourceDataId, ids);
+                    Long e1 = SystemClock.now();
+                    List<SourceDataSegment> sourceDataSegments = sourceDataSegmentService.list(queryWrapperSegment);
+                    Long e2 = SystemClock.now();
+                    logger.info("uuid:{},e1耗时:{}", uid, e2 - e1);
+
+                    Map<Long, List<SourceDataSegment>> sourceDataSegmentMap = sourceDataSegments.stream().collect(Collectors.groupingBy(g -> g.getSourceDataId()));
+                    sourceDataList.parallelStream().forEach(s ->{
+                        s.setSourceDataSegments(sourceDataSegmentMap.get(s.getId()));
+                    });
+
+                    Long c2 = SystemClock.now();
+                    logger.info("uuid:{},c2耗时:{}",uid,c2-c1);
                     Map<String,List<SourceData>> sourceDataMap = sourceDataList.stream().collect(Collectors.groupingBy(
                             g ->g.getSourceType()
                     ));
@@ -149,7 +159,7 @@ public class SourceDataServiceImpl extends ServiceImpl<SourceDataMapper, SourceD
                     });
                     redisCache.addHashMapAll(key,cacheMap);
                     Long t2 = SystemClock.now();
-                    logger.info("uuid:{},耗时:{}",uid,t2-t1);
+                    logger.info("uuid:{},总耗时:{}",uid,t2-t1);
                     countDownLatch.countDown();
                     logger.info("uuid{},还剩余处理的数据{}:",uid,countDownLatch.getCount());
                 },threadPoolTaskExecutor);

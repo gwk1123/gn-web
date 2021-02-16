@@ -19,13 +19,13 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class ThreadPoolConfig
 {
     // 核心线程池大小
-    private int corePoolSize = 20;
+    private int corePoolSize = 100;
 
     // 最大可创建的线程数
-    private int maxPoolSize = 50;
+    private int maxPoolSize = 150;
 
     // 队列最大长度
-    private int queueCapacity = 10000;
+    private int queueCapacity = 100000;
 
     // 线程池维护线程所允许的空闲时间
     private int keepAliveSeconds = 300;
