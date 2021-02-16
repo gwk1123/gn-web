@@ -1,5 +1,6 @@
 package com.gn.web.source.service.impl;
 
+import cn.hutool.core.date.SystemClock;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -15,6 +16,8 @@ import com.gn.web.source.mapper.SourceDataMapper;
 import com.gn.web.source.service.SourceDataSegmentService;
 import com.gn.web.source.service.SourceDataService;
 import lombok.var;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
@@ -27,8 +30,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 import org.springframework.util.CollectionUtils;
@@ -55,6 +60,8 @@ public class SourceDataServiceImpl extends ServiceImpl<SourceDataMapper, SourceD
     @Autowired
     @Qualifier(value = "threadPoolTaskExecutor")
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
+
+    private Logger logger =LoggerFactory.getLogger(SourceDataServiceImpl.class);
 
     DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyyMMdd");
 
@@ -107,9 +114,12 @@ public class SourceDataServiceImpl extends ServiceImpl<SourceDataMapper, SourceD
     @Async
     public void sourceDataCache(){
         List<SourceData> result=this.list(new LambdaQueryWrapper<SourceData>().groupBy(SourceData::getDepCity,SourceData::getArrCity,SourceData::getTravelStartDate).select(SourceData::getDepCity,SourceData::getArrCity,SourceData::getTravelStartDate));
+        CountDownLatch countDownLatch = new CountDownLatch(result.size());
         if(!CollectionUtils.isEmpty(result)){
             result.stream().forEach(e ->{
                 CompletableFuture.runAsync(()->{
+                    String uid = UUID.randomUUID().toString().replaceAll("-","");
+                    Long t1 = SystemClock.now();
                     QueryWrapper<SourceData>queryWrapper=new QueryWrapper<>();
                     queryWrapper.lambda().eq(SourceData::getTravelStartDate,e.getTravelStartDate())
                             .eq(SourceData::getDepCity,e.getDepCity())
@@ -138,6 +148,10 @@ public class SourceDataServiceImpl extends ServiceImpl<SourceDataMapper, SourceD
                         cacheMap.put(setKey,res);
                     });
                     redisCache.addHashMapAll(key,cacheMap);
+                    Long t2 = SystemClock.now();
+                    logger.info("uuid:{},耗时:{}",uid,t2-t1);
+                    countDownLatch.countDown();
+                    logger.info("uuid{},还剩余处理的数据{}:",uid,countDownLatch.getCount());
                 },threadPoolTaskExecutor);
             });
         }
