@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ApiModel(value="ResignConfig对象", description="")
-public class ResignConfig extends BaseEntity implements Serializable {
+public class ResignConfig extends BaseEntity{
 
     private static final long serialVersionUID = 1L;
 

@@ -23,7 +23,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 @TableName("policy_global")
 @ApiModel(value="PolicyGlobal对象", description="全平台政策管理")
-public class PolicyGlobal extends BaseEntity implements Serializable {
+public class PolicyGlobal extends BaseEntity{
 
     private static final long serialVersionUID = 1L;
 

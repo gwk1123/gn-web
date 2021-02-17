@@ -22,7 +22,7 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = false)
 @TableName("ota_sync_policy_segment")
 @ApiModel(value="OtaSyncPolicySegment对象", description="OTA政策同步行程信息")
-public class OtaSyncPolicySegment extends BaseEntity implements Serializable {
+public class OtaSyncPolicySegment extends BaseEntity{
 
     private static final long serialVersionUID = 1L;
 

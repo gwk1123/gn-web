@@ -18,7 +18,7 @@ import java.io.Serializable;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ApiModel(value="SiteRulesSwitch对象", description="站点规则开关")
-public class SiteRulesSwitch extends BaseEntity implements Serializable {
+public class SiteRulesSwitch extends BaseEntity{
 
     private static final long serialVersionUID = 1L;
 

@@ -26,21 +26,12 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 @TableName("ota_sync_policy")
 @ApiModel(value="OtaSyncPolicy对象", description="OTA政策同步")
-public class OtaSyncPolicy extends BaseEntity implements Serializable {
+public class OtaSyncPolicy extends BaseEntity{
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "OTA平台代码 CTRIP-携程 FLIGGY-飞猪 QUNAR-去哪儿 LY-同程 WAP133-航班管家 JIULVXING-就旅行 MEITUAN-美团")
-    private String otaCode;
-
-    @ApiModelProperty(value = "OTA平台中文")
-    private String otaCname;
-
     @ApiModelProperty(value = "OTA站点代码")
     private String otaSiteCode;
-
-    @ApiModelProperty(value = "OTA站点中文")
-    private String otaSiteCname;
 
     @ApiModelProperty(value = "数据来源 WEBSITE,B2B,FD,NFD,ML-自用")
     private String sourceType;

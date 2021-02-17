@@ -951,10 +951,15 @@ public class WebSearchServiceImpl implements WebSearchService {
             allKey.add(allAllkey);
         });
         List<Object> ids= redisCache.getPolicyByIds(allKey);
-        if(CollectionUtils.isEmpty(ids)){
+        Set<Object> idSet =new HashSet<>();
+        ids.stream().forEach(e ->{
+            if(!CollectionUtils.isEmpty((Collection<?>) e)){
+                idSet.addAll((Collection<?>) e);
+            }
+        });
+        if(CollectionUtils.isEmpty(idSet)){
             return  null;
         }
-        Set<Object> idSet = ids.stream().collect(Collectors.toSet());
         return redisCache.getHashList(DirectConstants.POLICY_GLOBAL,idSet);
     }
 
@@ -1000,10 +1005,15 @@ public class WebSearchServiceImpl implements WebSearchService {
             allKey.add(allAllkey);
         });
         List<Object> ids= redisCache.getPolicyByIds(allKey);
+        Set<Object> idSet =new HashSet<>();
+        ids.stream().forEach(e ->{
+            if(!CollectionUtils.isEmpty((Collection<?>) e)){
+                idSet.addAll((Collection<?>) e);
+            }
+        });
         if(CollectionUtils.isEmpty(ids)){
             return  null;
         }
-        Set<Object> idSet = ids.stream().collect(Collectors.toSet());
         return redisCache.getHashList(DirectConstants.POLICY_GLOBAL,idSet);
     }
 

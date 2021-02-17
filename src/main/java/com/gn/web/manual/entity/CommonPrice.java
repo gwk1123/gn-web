@@ -22,7 +22,7 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = false)
 @TableName("common_price")
 @ApiModel(value="CommonPrice对象", description="全平台调价")
-public class CommonPrice extends BaseEntity implements Serializable {
+public class CommonPrice extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 

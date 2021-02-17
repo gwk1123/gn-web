@@ -29,8 +29,6 @@ import java.util.List;
 public class OtaSyncPolicyController {
 
     private final OtaSyncPolicyService taSyncPolicyService;
-    @Autowired
-    private SourceDataService ourcedataDataService;
 
     public OtaSyncPolicyController(OtaSyncPolicyService taSyncPolicyService){this.taSyncPolicyService = taSyncPolicyService;}
 

@@ -20,7 +20,7 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = false)
 @TableName("site_config")
 @ApiModel(value="SiteConfig对象", description="政策站点配置")
-public class SiteConfig extends BaseEntity implements Serializable {
+public class SiteConfig extends BaseEntity{
 
     private static final long serialVersionUID = 1L;
 

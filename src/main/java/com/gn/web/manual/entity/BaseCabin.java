@@ -21,7 +21,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode(callSuper = false)
 @TableName("base_cabin")
 @ApiModel(value="BaseCabin对象", description="政策基础舱位")
-public class BaseCabin extends BaseEntity implements Serializable {
+public class BaseCabin extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
