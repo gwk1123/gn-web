@@ -3,10 +3,12 @@ package com.gn.web.source.controller;
 import com.gn.web.common.constant.DirectConstants;
 import com.gn.web.common.redis.RedisCache;
 import com.gn.web.manual.entity.SiteConfig;
+import com.gn.web.manual.service.OtaSyncPolicyService;
 import com.gn.web.source.entity.OtaRequest;
 import com.gn.web.source.service.SourceDataService;
 import com.gn.web.source.service.WebSearchService;
 import com.gn.web.source.service.impl.WebSearchServiceImpl;
+import feign.Param;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,9 +19,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.annotation.WebListener;
 import java.util.List;
@@ -262,12 +262,15 @@ public class WebSearchController implements ApplicationListener<ContextRefreshed
 
     @Autowired
     private SourceDataService sourceDataService;
+    @Autowired
+    private OtaSyncPolicyService otaSyncPolicyService;
 
     @ResponseBody
     @RequestMapping(value = "/test")
     public void test(@RequestBody OtaRequest otaRequest) throws Exception {
+        otaSyncPolicyService.generateOtaSyncPolicy();
 //        sourceDataService.sourceDataCache();
-        webSearchService.tansformSearch(otaRequest);
+//        webSearchService.tansformSearch(otaRequest);
     }
 
 

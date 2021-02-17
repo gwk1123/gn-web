@@ -72,4 +72,6 @@ public interface OtaSyncPolicyService extends IService<OtaSyncPolicy> {
      * @return
      */
     List<OtaSyncPolicy> selectOtaSyncPolicys(OtaSyncPolicy otaSyncPolicy);
+
+    void generateOtaSyncPolicy();
 }

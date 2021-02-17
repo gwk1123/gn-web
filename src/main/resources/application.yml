@@ -84,4 +84,4 @@ secure:
       - /**/*.html
       - /webjars/**
       - /*/api-docs
-      - /*/test
+      - /manual_policy/**
