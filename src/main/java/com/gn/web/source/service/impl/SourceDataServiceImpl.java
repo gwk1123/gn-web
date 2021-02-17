@@ -1,6 +1,7 @@
 package com.gn.web.source.service.impl;
 
 import cn.hutool.core.date.SystemClock;
+import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -140,7 +141,7 @@ public class SourceDataServiceImpl extends ServiceImpl<SourceDataMapper, SourceD
                     });
 
                     Long c2 = SystemClock.now();
-                    logger.info("uuid:{},c2耗时:{}",uid,c2-c1);
+                    logger.info("uuid:{},c2耗时:{}",uid,c2-e2);
                     Map<String,List<SourceData>> sourceDataMap = sourceDataList.stream().collect(Collectors.groupingBy(
                             g ->g.getSourceType()
                     ));
@@ -154,7 +155,8 @@ public class SourceDataServiceImpl extends ServiceImpl<SourceDataMapper, SourceD
                     sourceDataMap.entrySet().stream().forEach( s ->{
                         String setKey = s.getKey();
                         String str = JSON.toJSONString(s.getValue());
-                        byte[] res=GzipUtil.compressStream(str).toByteArray();
+                        byte[] res= ZipUtil.gzip(str ,"UTF-8");
+//                        byte[] res=GzipUtil.compressStream(str).toByteArray();
                         cacheMap.put(setKey,res);
                     });
                     redisCache.addHashMapAll(key,cacheMap);

@@ -2,6 +2,7 @@ package com.gn.web.source.service.impl;
 
 import cn.hutool.core.collection.ConcurrentHashSet;
 import cn.hutool.core.date.SystemClock;
+import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -177,7 +178,8 @@ public class WebSearchServiceImpl implements WebSearchService {
             Long t2 = SystemClock.now();
             logger.info("{}请求时间t12:{}", t1, t2 - t1);
             List<String> dataMapStr = dataMap.values().parallelStream().map(m -> {
-                return GzipUtil.unCompress((byte[]) m);
+//                return GzipUtil.unCompress((byte[]) m);
+                return ZipUtil.unGzip((byte[]) m,"UTF-8");
             }).collect(Collectors.toList());
 
             Long t3 = SystemClock.now();

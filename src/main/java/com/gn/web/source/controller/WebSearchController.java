@@ -4,6 +4,7 @@ import com.gn.web.common.constant.DirectConstants;
 import com.gn.web.common.redis.RedisCache;
 import com.gn.web.manual.entity.SiteConfig;
 import com.gn.web.source.entity.OtaRequest;
+import com.gn.web.source.service.SourceDataService;
 import com.gn.web.source.service.WebSearchService;
 import com.gn.web.source.service.impl.WebSearchServiceImpl;
 import lombok.SneakyThrows;
@@ -259,9 +260,13 @@ public class WebSearchController implements ApplicationListener<ContextRefreshed
 
 
 
+    @Autowired
+    private SourceDataService sourceDataService;
+
     @ResponseBody
     @RequestMapping(value = "/test")
     public void test(@RequestBody OtaRequest otaRequest) throws Exception {
+//        sourceDataService.sourceDataCache();
         webSearchService.tansformSearch(otaRequest);
     }
 
