@@ -28,7 +28,7 @@ spring:
     database: 0
     host: 106.75.115.170
     port: 6379
-
+    password: gwk_632697105
     pool:
       # 最大可用连接数（默认为8，负数表示无限）
       max-active: 300
