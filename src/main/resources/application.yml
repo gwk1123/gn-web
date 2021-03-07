@@ -17,7 +17,7 @@ spring:
     druid:
       initial-size: 5
       min-idle: 10
-      max-active: 350
+      max-active: 50
       web-stat-filter:
         exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
       stat-view-servlet:

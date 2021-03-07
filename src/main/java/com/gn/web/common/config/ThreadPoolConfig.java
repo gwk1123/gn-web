@@ -19,10 +19,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class ThreadPoolConfig
 {
     // 核心线程池大小
-    private int corePoolSize = 800;
+    private int corePoolSize = 80;
 
     // 最大可创建的线程数
-    private int maxPoolSize = 1000;
+    private int maxPoolSize = 100;
 
     // 队列最大长度
     private int queueCapacity = 100000;
@@ -75,9 +75,9 @@ public class ThreadPoolConfig
     private final String ASYNC_POOL_9 = "asyncExecutor9";
     private final String ASYNC_POOL_NAME_9 = "async_executor9_";
 
-    private int corePool = 15;
+    private int corePool = 30;
 
-    private int maxPool = 16;
+    private int maxPool = 40;
 
     @Bean(ASYNC_POOL_1)
     public ThreadPoolTaskExecutor getQujqlfxExecutorAsync() {
