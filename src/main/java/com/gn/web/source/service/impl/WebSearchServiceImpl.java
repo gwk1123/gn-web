@@ -135,6 +135,7 @@ public class WebSearchServiceImpl implements WebSearchService {
 
             //根据出发地、目的地和起飞时间将数据改为待删除
             OtaSyncPolicy updateOtaPolicy = new OtaSyncPolicy();
+            updateOtaPolicy.setOtaSiteCode(otaRequest.getOtaSiteCode());
 //            updateOtaPolicy.setTableName(otaRequest.getOtaSiteCode().replaceAll("-", "").toLowerCase());
             updateOtaPolicy.setTravelStartDate(parseDate(otaRequest.getFromDate()));
             updateOtaPolicy.setDepCity(otaRequest.getFromAirport());
@@ -217,14 +218,8 @@ public class WebSearchServiceImpl implements WebSearchService {
             Long tt = SystemClock.now();
             logger.info("{}批量获取全平台政策前返耗时:{}", t1, tt - t5);
 
-            //批量获取全平台政策前返
-//            List<Object> qo=getCommonPolicies("QF-ALL", "MLCommonPolicy",siteRoutings);
             Long tq = SystemClock.now();
-            logger.info("{}批量获取全平台政策前返耗时:{}", t1, tq - tt);
-//            Map<String, List<PolicyGlobal>> beforeCommonPolicieMap = null;
-//            if(!CollectionUtils.isEmpty(qo)) {
-//                beforeCommonPolicieMap = qo.stream().filter(Objects::nonNull).map(m -> objectMapper.convertValue(m, MlCommonPolicy.class)).collect(Collectors.groupingBy(MlCommonPolicy::getAirline));
-//            }
+
             Long tqz = SystemClock.now();
             logger.info("{}转化全平台政策前返耗时:{}", t1, tqz - tq);
             //批量获取全局政策
@@ -268,7 +263,6 @@ public class WebSearchServiceImpl implements WebSearchService {
 
                     Long t52 = SystemClock.now();
                     //获取全平台政策
-//                    List<MlCommonPrice> commonPrices = findCommonPrice(siteSearchRequest, routing, otaRequest);
                     List<CommonPrice> commonPrices = null;
                     if (commonPriceMap != null && commonPriceMap.size() != 0) {
                         commonPrices = getCommonPrice(commonPriceMap.get(routing.getSourceType()), routing, otaRequest);
@@ -360,32 +354,6 @@ public class WebSearchServiceImpl implements WebSearchService {
             Long t7 = SystemClock.now();
             logger.info("{}请求时间t67:{}",t1, t7 - t6);
 
-
-//            otaSyncPolicyMapper.insertBatch(otaPolicys, otaRequest.getOtaSiteCode().replaceAll("-", "").toLowerCase());
-//            List<MlOtaPolicySegment> otaPolicySegmentList = new ArrayList<>();
-//            otaPolicys.stream()
-//                    .forEach(m -> {
-//                        m.getSourceDataSegments().stream().forEach(i -> {
-//                            i.setId(null);
-//                            i.setOtaSyncId(m.getId());
-//                            i.setCodeShare(false);
-//                            i.setVersion(1);
-//                            i.setFlightNumber(StringUtils.isEmpty(i.getFlightNumber())?"":
-//                                    i.getFlightNumber().replace(i.getAirline(),""));
-//                            i.setFlightNumLimit(StringUtils.isEmpty(i.getFlightNumber())?0:1);
-//                            i.setUniqueKey(m.getUniqueKey());
-//                            i.setTableName(otaRequest.getOtaSiteCode().replaceAll("-", "").toLowerCase());
-//                            i.setCreateTime(LocalDateTime.now().toString());
-//                            i.setUpdateTime(LocalDateTime.now().toString());
-//                            i.setCreateUserName("backPotMan");
-//                            i.setUpdateUserName("backPotMan");
-//                        });
-//                        otaPolicySegmentList.addAll(m.getSourceDataSegments());
-//                    });
-//            mlOtaPolicySegmentMapper.insertBatch(otaPolicySegmentList, otaRequest.getOtaSiteCode().replaceAll("-", "").toLowerCase());
-////            logger.info("线程信息:{}", Thread.currentThread());
-//            Long t7 = SystemClock.now();
-//            logger.info("{}请求时间t67:{}",t1, t7 - t6);
         } catch (Exception ex) {
             logger.error("异常:{}", ex);
         } finally {
@@ -485,6 +453,7 @@ public class WebSearchServiceImpl implements WebSearchService {
         pushPolicyType.setPatFlag(otaPolicyType.getParameter4());
         pushPolicyType.setChildFlag(otaPolicyType.getParameter5());
         otaPolicy.setOtaExtendFileds(JSON.toJSONString(pushPolicyType));
+        otaPolicy.setOtaSiteCode(otaRequest.getOtaSiteCode());
 //        otaPolicy.setTableName(otaRequest.getOtaSiteCode().replaceAll("-", "").toLowerCase());
 
         //当数据源为FD或NFD时，官网价取FD公布运价
