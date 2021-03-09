@@ -17,7 +17,7 @@ public class RedisCacheKeyUtils {
         val.append(policyGlobal.getAirline());
         val.append(":dep:");
         val.append(policyGlobal.getDepAirport());
-        val.append(":arr");
+        val.append(":arr:");
         val.append(policyGlobal.getArrAirport());
         return val.toString();
     }
@@ -32,18 +32,18 @@ public class RedisCacheKeyUtils {
         val.append(policyInfo.getAirline());
         val.append(":dep:");
         val.append(policyInfo.getDepAirport());
-        val.append(":arr");
+        val.append(":arr:");
         val.append(policyInfo.getArrAirport());
         return val.toString();
     }
 
-    public static String resignConfigSetKey( ResignConfig resignConfig){
-        StringBuffer  val = new StringBuffer(DirectConstants.RESIGN_CONFIG);
-        val.append(":site:");
-        val.append(resignConfig.getOtaSiteCode());
-        val.append(":a:");
-        val.append(resignConfig.getAirline());
-        return val.toString();
-    }
+//    public static String resignConfigSetKey( ResignConfig resignConfig){
+//        StringBuffer  val = new StringBuffer(DirectConstants.RESIGN_CONFIG);
+//        val.append(":site:");
+//        val.append(resignConfig.getOtaSiteCode());
+//        val.append(":a:");
+//        val.append(resignConfig.getAirline());
+//        return val.toString();
+//    }
 
 }

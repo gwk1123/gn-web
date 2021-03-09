@@ -8,6 +8,7 @@ import com.gn.web.common.constant.DirectConstants;
 import com.gn.web.common.exception.CustomException;
 import com.gn.web.common.redis.RedisCache;
 import com.gn.web.common.redis.RedisCacheKeyUtils;
+import com.gn.web.manual.entity.OtaRule;
 import com.gn.web.manual.entity.PolicyGlobal;
 import com.gn.web.manual.entity.PolicyInfo;
 import com.gn.web.manual.entity.ResignConfig;
@@ -110,15 +111,28 @@ public class ResignConfigServiceImpl extends ServiceImpl<ResignConfigMapper, Res
         return queryWrapper;
     }
 
-    public void saveOrUpdateCache(ResignConfig resignConfig) {
-        if (DirectConstants.NORMAL.equals(resignConfig.getStatus())) {
-            String setKey = RedisCacheKeyUtils.resignConfigSetKey(resignConfig);
-            redisCache.addSet(setKey, String.valueOf(resignConfig.getId()));
-            redisCache.addHashMap(DirectConstants.RESIGN_CONFIG, String.valueOf(resignConfig.getId()), resignConfig);
-        } else {
-            String setKey = RedisCacheKeyUtils.resignConfigSetKey(resignConfig);
-            redisCache.removeSetKey(setKey, String.valueOf(resignConfig.getId()));
-            redisCache.removeHashKey(DirectConstants.RESIGN_CONFIG, String.valueOf(resignConfig.getId()));
+//    public void saveOrUpdateCache(ResignConfig resignConfig) {
+//        if (DirectConstants.NORMAL.equals(resignConfig.getStatus())) {
+//            String setKey = RedisCacheKeyUtils.resignConfigSetKey(resignConfig);
+//            redisCache.addSet(setKey, String.valueOf(resignConfig.getId()));
+//            redisCache.addHashMap(DirectConstants.RESIGN_CONFIG, String.valueOf(resignConfig.getId()), resignConfig);
+//        } else {
+//            String setKey = RedisCacheKeyUtils.resignConfigSetKey(resignConfig);
+//            redisCache.removeSetKey(setKey, String.valueOf(resignConfig.getId()));
+//            redisCache.removeHashKey(DirectConstants.RESIGN_CONFIG, String.valueOf(resignConfig.getId()));
+//        }
+//    }
+
+    public void saveOrUpdateCache(ResignConfig resignConfig){
+        String devStr= StringUtils.isEmpty(resignConfig.getDepCity())?DirectConstants.AIRPORT_ALL:resignConfig.getDepCity();
+        String arrString =  StringUtils.isEmpty(resignConfig.getArrCity())?DirectConstants.AIRPORT_ALL:resignConfig.getArrCity();
+        resignConfig.setDepCity(devStr);
+        resignConfig.setArrCity(arrString);
+        if(DirectConstants.NORMAL.equals(resignConfig.getStatus())){
+            redisCache.addHashMap(resignConfig.getOtaSiteCode()+"_"+resignConfig.getAirline(),String.valueOf(resignConfig.getId()),resignConfig);
+        }else {
+            redisCache.removeHashKey(resignConfig.getOtaSiteCode()+"_"+resignConfig.getAirline(),String.valueOf(resignConfig.getId()));
         }
     }
+
 }
