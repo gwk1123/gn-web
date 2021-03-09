@@ -395,12 +395,12 @@ public class WebSearchServiceImpl implements WebSearchService {
                 //当存在 ，判断价格是否小于原来的方案
                 if (m.getOtaPushPrice().compareTo(routingMap.get(key).getOtaPushPrice()) < 0) {
                     //替换原来的方案
-                    m.setUniqueKey((key + m.getOtaPolicyType()).replaceAll("-", "").replaceAll(":", "")
+                    m.setUniqueKey(m.getOtaSiteCode()+(key + m.getOtaPolicyType()).replaceAll("-", "").replaceAll(":", "")
                             .replaceAll(" ", ""));
                     routingMap.put(key, m);
                 }
             } else {
-                m.setUniqueKey((key + m.getOtaPolicyType()).replaceAll("-", "").replaceAll(":", "")
+                m.setUniqueKey(m.getOtaSiteCode()+(key + m.getOtaPolicyType()).replaceAll("-", "").replaceAll(":", "")
                         .replaceAll(" ", ""));
                 routingMap.put(key, m);
             }
