@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gn.web.common.constant.DirectConstants;
+import com.gn.web.common.exception.CustomException;
 import com.gn.web.common.redis.RedisCache;
 import com.gn.web.common.redis.RedisCacheKeyUtils;
 import com.gn.web.manual.entity.PolicyGlobal;
@@ -40,8 +41,7 @@ public class PolicyGlobalServiceImpl extends ServiceImpl<PolicyGlobalMapper, Pol
     public IPage<PolicyGlobal> pagePolicyGlobal(Page<PolicyGlobal> page, PolicyGlobal policyGlobal) {
 
         page = Optional.ofNullable(page).orElse(new Page<>());
-        QueryWrapper<PolicyGlobal> queryWrapper = new QueryWrapper<>();
-
+        QueryWrapper<PolicyGlobal> queryWrapper =  buildQueryWrapper(policyGlobal);
         return this.page(page, queryWrapper);
     }
 
@@ -49,6 +49,9 @@ public class PolicyGlobalServiceImpl extends ServiceImpl<PolicyGlobalMapper, Pol
     @Transactional(rollbackFor = Exception.class)
     public boolean savePolicyGlobal(PolicyGlobal policyGlobal) {
         Assert.notNull(policyGlobal, "全平台政策管理为空");
+        if(StringUtils.isEmpty(policyGlobal.getOtaSiteCode())){
+            throw new CustomException("获取站点code为空");
+        }
         boolean flay= this.save(policyGlobal);
         saveOrUpdateCache( policyGlobal);
         return flay;
@@ -78,6 +81,9 @@ public class PolicyGlobalServiceImpl extends ServiceImpl<PolicyGlobalMapper, Pol
     @Transactional(rollbackFor = Exception.class)
     public boolean updatePolicyGlobal(PolicyGlobal policyGlobal) {
         Assert.notNull(policyGlobal, "全平台政策管理为空");
+        if(StringUtils.isEmpty(policyGlobal.getOtaSiteCode())){
+            throw new CustomException("获取站点code为空");
+        }
         boolean flay = this.updateById(policyGlobal);
         saveOrUpdateCache( policyGlobal);
         return flay;
@@ -87,6 +93,24 @@ public class PolicyGlobalServiceImpl extends ServiceImpl<PolicyGlobalMapper, Pol
     public PolicyGlobal getPolicyGlobalById(String id) {
         return this.getById(id);
     }
+
+
+    public QueryWrapper<PolicyGlobal> buildQueryWrapper(PolicyGlobal policyGlobal){
+        if(StringUtils.isEmpty(policyGlobal.getOtaSiteCode())){
+            throw new CustomException("获取站点code为空");
+        }
+        QueryWrapper<PolicyGlobal> queryWrapper =new QueryWrapper<>();
+        if(policyGlobal != null){
+            queryWrapper.lambda().eq(PolicyGlobal::getOtaSiteCode,policyGlobal.getOtaSiteCode())
+                    .eq(!StringUtils.isEmpty(policyGlobal.getAirline()),PolicyGlobal::getAirline,policyGlobal.getAirline())
+                    .eq(!StringUtils.isEmpty(policyGlobal.getDepAirport()),PolicyGlobal::getDepAirport,policyGlobal.getDepAirport())
+                    .eq(!StringUtils.isEmpty(policyGlobal.getArrAirport()),PolicyGlobal::getArrAirport,policyGlobal.getArrAirport())
+                    .eq(!StringUtils.isEmpty(policyGlobal.getId()),PolicyGlobal::getId,policyGlobal.getId());
+        }
+        return queryWrapper;
+    }
+
+
 
     public void saveOrUpdateCache(PolicyGlobal policyGlobal) {
         String devStr= StringUtils.isEmpty(policyGlobal.getDepAirport())?DirectConstants.AIRPORT_ALL:policyGlobal.getDepAirport();

@@ -1,5 +1,7 @@
 package com.gn.web.common.constant;
 
+import com.gn.web.manual.entity.ResignConfig;
+
 public class DirectConstants {
 
 
@@ -42,6 +44,8 @@ public class DirectConstants {
     public static final String POLICY_GLOBAL = "policy_global";
 
     public static final String POLICY_INFO = "policy_info";
+
+    public static final String  RESIGN_CONFIG = "resign_config";
 
     public static final String OTA_RULE_0 = "OTA-0"; //规则OTA-0(白名单)
 

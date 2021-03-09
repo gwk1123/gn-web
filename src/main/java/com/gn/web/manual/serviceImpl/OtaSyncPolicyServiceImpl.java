@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.gn.web.common.exception.CustomException;
 import com.gn.web.manual.entity.OtaSyncPolicy;
 import com.gn.web.manual.mapper.OtaSyncPolicyMapper;
 import com.gn.web.manual.service.OtaSyncPolicyService;
@@ -55,8 +56,7 @@ public class OtaSyncPolicyServiceImpl extends ServiceImpl<OtaSyncPolicyMapper, O
     public IPage<OtaSyncPolicy> pageOtaSyncPolicy(Page<OtaSyncPolicy> page, OtaSyncPolicy otaSyncPolicy){
 
         page = Optional.ofNullable(page).orElse(new Page<>());
-        QueryWrapper<OtaSyncPolicy> queryWrapper = new QueryWrapper<>();
-
+        QueryWrapper<OtaSyncPolicy> queryWrapper= buildQueryWrapper(otaSyncPolicy);
         return  this.page(page, queryWrapper);
     }
 
@@ -64,6 +64,9 @@ public class OtaSyncPolicyServiceImpl extends ServiceImpl<OtaSyncPolicyMapper, O
     @Transactional(rollbackFor = Exception.class)
     public boolean saveOtaSyncPolicy(OtaSyncPolicy otaSyncPolicy){
         Assert.notNull(otaSyncPolicy, "OTA政策同步为空");
+        if(StringUtils.isEmpty(otaSyncPolicy.getOtaSiteCode())){
+            throw new CustomException("获取站点code为空");
+        }
         return this.save(otaSyncPolicy);
     }
 
@@ -85,6 +88,9 @@ public class OtaSyncPolicyServiceImpl extends ServiceImpl<OtaSyncPolicyMapper, O
     @Transactional(rollbackFor = Exception.class)
     public boolean updateOtaSyncPolicy(OtaSyncPolicy otaSyncPolicy){
         Assert.notNull(otaSyncPolicy, "OTA政策同步为空");
+        if(StringUtils.isEmpty(otaSyncPolicy.getOtaSiteCode())){
+            throw new CustomException("获取站点code为空");
+        }
         return this.updateById(otaSyncPolicy);
     }
 
@@ -108,15 +114,20 @@ public class OtaSyncPolicyServiceImpl extends ServiceImpl<OtaSyncPolicyMapper, O
      * @param otaSyncPolicy
      * @return
      */
-    public QueryWrapper<OtaSyncPolicy> buildQueryWrapper(OtaSyncPolicy otaSyncPolicy){
-        QueryWrapper<OtaSyncPolicy> queryWrapper=new QueryWrapper<>();
-        if(otaSyncPolicy != null){
-            if(otaSyncPolicy.getTravelStartDate() != null){
-                queryWrapper.lambda().eq(!StringUtils.isEmpty(otaSyncPolicy.getTravelStartDate()),OtaSyncPolicy::getTravelStartDate,otaSyncPolicy.getTravelStartDate())
-                        .eq(!StringUtils.isEmpty(otaSyncPolicy.getDepCity()),OtaSyncPolicy::getDepCity,otaSyncPolicy.getDepCity())
-                        .eq(!StringUtils.isEmpty(otaSyncPolicy.getArrCity()),OtaSyncPolicy::getArrCity,otaSyncPolicy.getArrCity());
-            }
+    public QueryWrapper<OtaSyncPolicy> buildQueryWrapper(OtaSyncPolicy otaSyncPolicy) {
+        if(StringUtils.isEmpty(otaSyncPolicy.getOtaSiteCode())){
+            throw new CustomException("获取站点code为空");
         }
+        QueryWrapper<OtaSyncPolicy> queryWrapper = new QueryWrapper<>();
+        if (otaSyncPolicy != null) {
+                queryWrapper.lambda()
+                        .eq(OtaSyncPolicy::getOtaSiteCode, otaSyncPolicy.getOtaSiteCode())
+                        .eq(!StringUtils.isEmpty(otaSyncPolicy.getTravelStartDate()), OtaSyncPolicy::getTravelStartDate, otaSyncPolicy.getTravelStartDate())
+                        .eq(!StringUtils.isEmpty(otaSyncPolicy.getDepCity()), OtaSyncPolicy::getDepCity, otaSyncPolicy.getDepCity())
+                        .eq(!StringUtils.isEmpty(otaSyncPolicy.getArrCity()), OtaSyncPolicy::getArrCity, otaSyncPolicy.getArrCity())
+                        .eq(!StringUtils.isEmpty(otaSyncPolicy.getId()), OtaSyncPolicy::getId, otaSyncPolicy.getId())
+                        .eq(!StringUtils.isEmpty(otaSyncPolicy.getAirline()), OtaSyncPolicy::getAirline, otaSyncPolicy.getAirline());
+            }
         return queryWrapper;
     }
 

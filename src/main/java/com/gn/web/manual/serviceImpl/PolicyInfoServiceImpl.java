@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gn.web.common.constant.DirectConstants;
+import com.gn.web.common.exception.CustomException;
 import com.gn.web.common.redis.RedisCache;
 import com.gn.web.common.redis.RedisCacheKeyUtils;
 import com.gn.web.manual.entity.PolicyGlobal;
@@ -41,8 +42,7 @@ public class PolicyInfoServiceImpl extends ServiceImpl<PolicyInfoMapper, PolicyI
     public IPage<PolicyInfo> pagePolicyInfo(Page<PolicyInfo> page, PolicyInfo policyInfo){
 
         page = Optional.ofNullable(page).orElse(new Page<>());
-        QueryWrapper<PolicyInfo> queryWrapper = new QueryWrapper<>();
-
+        QueryWrapper<PolicyInfo> queryWrapper = buildQueryWrapper(policyInfo);
         return  this.page(page, queryWrapper);
     }
 
@@ -50,6 +50,9 @@ public class PolicyInfoServiceImpl extends ServiceImpl<PolicyInfoMapper, PolicyI
     @Transactional(rollbackFor = Exception.class)
     public boolean savePolicyInfo(PolicyInfo policyInfo){
         Assert.notNull(policyInfo, "全平台政策管理为空");
+        if(StringUtils.isEmpty(policyInfo.getOtaSiteCode())){
+            throw new CustomException("获取站点code为空");
+        }
         boolean flay= this.save(policyInfo);
         saveOrUpdateCache( policyInfo);
         return flay;
@@ -79,6 +82,9 @@ public class PolicyInfoServiceImpl extends ServiceImpl<PolicyInfoMapper, PolicyI
     @Transactional(rollbackFor = Exception.class)
     public boolean updatePolicyInfo(PolicyInfo policyInfo){
         Assert.notNull(policyInfo, "全平台政策管理为空");
+        if(StringUtils.isEmpty(policyInfo.getOtaSiteCode())){
+            throw new CustomException("获取站点code为空");
+        }
         boolean flay= this.updateById(policyInfo);
         saveOrUpdateCache( policyInfo);
         return flay;
@@ -87,6 +93,21 @@ public class PolicyInfoServiceImpl extends ServiceImpl<PolicyInfoMapper, PolicyI
     @Override
     public PolicyInfo getPolicyInfoById(String id){
         return  this.getById(id);
+    }
+
+    public QueryWrapper<PolicyInfo> buildQueryWrapper(PolicyInfo policyInfo){
+        if(StringUtils.isEmpty(policyInfo.getOtaSiteCode())){
+            throw new CustomException("获取站点code为空");
+        }
+        QueryWrapper<PolicyInfo> queryWrapper =new QueryWrapper<>();
+        if(policyInfo != null){
+            queryWrapper.lambda().eq(PolicyInfo::getOtaSiteCode,policyInfo.getOtaSiteCode())
+                    .eq(!StringUtils.isEmpty(policyInfo.getAirline()),PolicyInfo::getAirline,policyInfo.getAirline())
+                    .eq(!StringUtils.isEmpty(policyInfo.getDepAirport()),PolicyInfo::getDepAirport,policyInfo.getDepAirport())
+                    .eq(!StringUtils.isEmpty(policyInfo.getArrAirport()),PolicyInfo::getArrAirport,policyInfo.getArrAirport())
+                    .eq(!StringUtils.isEmpty(policyInfo.getId()),PolicyInfo::getId,policyInfo.getId());
+        }
+        return queryWrapper;
     }
 
     public void saveOrUpdateCache(PolicyInfo policyInfo) {
