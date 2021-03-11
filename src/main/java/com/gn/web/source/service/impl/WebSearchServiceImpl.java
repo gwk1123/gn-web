@@ -145,10 +145,13 @@ public class WebSearchServiceImpl implements WebSearchService {
                 List<String> uniqueKeys = otaSyncPolicies.stream().map(OtaSyncPolicy::getUniqueKey).collect(Collectors.toList());
                 QueryWrapper<OtaSyncPolicy> queryWrapper = new QueryWrapper<>();
                 queryWrapper.lambda().in(OtaSyncPolicy::getUniqueKey, uniqueKeys);
-                OtaSyncPolicy u = new OtaSyncPolicy();
-                u.setUpdateTime(LocalDateTime.now());
-                u.setOtaDeleteStatus(1);
-                otaSyncPolicyService.update(u, queryWrapper);
+//                OtaSyncPolicy u = new OtaSyncPolicy();
+//                u.setUpdateTime(LocalDateTime.now());
+//                u.setOtaDeleteStatus(1);
+//                otaSyncPolicyService.update(u, queryWrapper);
+
+                //直接删除
+                otaSyncPolicyService.remove(queryWrapper);
             }
 
             //获取数据源开关配置
