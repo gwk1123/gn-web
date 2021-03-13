@@ -1,5 +1,6 @@
 package com.gn.web.source.controller;
 
+import cn.hutool.core.date.SystemClock;
 import com.gn.web.common.constant.DirectConstants;
 import com.gn.web.common.redis.RedisCache;
 import com.gn.web.manual.entity.SiteConfig;
@@ -22,10 +23,13 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.annotation.WebListener;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @WebListener
 @Controller
@@ -272,6 +276,31 @@ public class WebSearchController implements ApplicationListener<ContextRefreshed
 //        sourceDataService.sourceDataCache();
 //        webSearchService.tansformSearch(otaRequest);
     }
+
+
+
+
+    private Lock lock = new ReentrantLock();
+
+    @ResponseBody
+    @RequestMapping(value = "/test1")
+    public void test1() throws Exception {
+
+        Thread thread = Thread.currentThread();
+        LocalDateTime t1 = LocalDateTime.now();
+        logger.info("线程:{},时间:{}",thread.getId(),t1.toString());
+        lock.lock();
+        try {
+            Thread.sleep(10 * 1000);
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            lock.unlock();
+        }
+        LocalDateTime t2 = LocalDateTime.now();
+        logger.info("线程:{},时间:{}",thread.getId(),t2.toString());
+    }
+
 
 
 }
