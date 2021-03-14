@@ -1,6 +1,7 @@
 package com.gn.web.source.controller;
 
 import cn.hutool.core.date.SystemClock;
+import com.alibaba.fastjson.JSON;
 import com.gn.web.common.constant.DirectConstants;
 import com.gn.web.common.redis.RedisCache;
 import com.gn.web.manual.entity.SiteConfig;
@@ -23,13 +24,18 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.annotation.WebListener;
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Random;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @WebListener
 @Controller
@@ -278,8 +284,9 @@ public class WebSearchController implements ApplicationListener<ContextRefreshed
     }
 
 
-
-
+    /**
+     * 对锁测试
+     */
     private Lock lock = new ReentrantLock();
 
     @ResponseBody
@@ -299,6 +306,49 @@ public class WebSearchController implements ApplicationListener<ContextRefreshed
         }
         LocalDateTime t2 = LocalDateTime.now();
         logger.info("线程:{},时间:{}",thread.getId(),t2.toString());
+    }
+
+
+    /**
+     * 多线程对多个结果集进行合并
+     * @param args
+     * @throws IOException
+     */
+    public static void main(String[] args) throws IOException {
+
+        LocalDateTime t1 = LocalDateTime.now();
+        System.out.println("t1:"+t1);
+        ExecutorService executorService= Executors.newFixedThreadPool(10,r ->{
+            Thread t =new Thread(r);
+            t.setDaemon(true);
+            return t;
+        });
+        List<Integer> numList = Arrays.asList(1,2,3,4,5,6,7,8);
+
+       List<Double> doubles = numList.parallelStream()
+               .map(i -> CompletableFuture.supplyAsync(() -> random(i),executorService))
+               .map(futrue -> futrue.thenApply(WebSearchController::multiply))
+               .map(CompletableFuture::join).collect(toList());
+        System.out.println(JSON.toJSONString(doubles));
+        LocalDateTime t2 = LocalDateTime.now();
+        System.out.println("t2:"+t2);
+
+    }
+
+    public static Double multiply(Double i){
+        try {
+            Thread.sleep(2*1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return 10L * i;
+    }
+
+
+    public static Double random(Integer i){
+        Double d= Double.valueOf(new Random().nextInt(10) * i);
+        System.out.println("i:"+i+";d:"+d);
+        return d;
     }
 
 
